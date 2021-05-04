@@ -24,7 +24,6 @@ class ExerciseCollectionViewController: UIViewController {
         
         self.exerciseCollectionView.dataSource = self
         self.exerciseCollectionView.delegate = self
-        self.exerciseCollectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
         
         configureUI()
     }
@@ -51,6 +50,9 @@ extension ExerciseCollectionViewController: UICollectionViewDataSource, UICollec
         cell.backgroundColor = .red
         cell.layer.cornerRadius = 20
         cell.layer.masksToBounds = true
+        
+        cell.thumbnailImageView.image = #imageLiteral(resourceName: "squat")
+        cell.thumbnailImageView.contentMode = .scaleAspectFill
         
         return cell
     }
