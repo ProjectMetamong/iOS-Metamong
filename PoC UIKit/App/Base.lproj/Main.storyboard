@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -16,21 +17,47 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="검색" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0u0-Oq-nEB">
-                                <rect key="frame" x="192" y="437.5" width="30" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="IZQ-Da-ymE">
+                                <rect key="frame" x="0.0" y="44" width="414" height="56"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="dnE-sw-aWb">
+                                <rect key="frame" x="0.0" y="108" width="414" height="705"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="OPv-mz-COA">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="4VO-Dq-gy5" customClass="ExerciseCollectionViewCell" customModule="PoC_UIKit" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="ExerciseCell" insetsLayoutMarginsFromSafeArea="NO" id="dya-Nt-FEV">
+                                            <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="0u0-Oq-nEB" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ZGa-w5-eaA"/>
-                            <constraint firstItem="0u0-Oq-nEB" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="cLT-At-T4C"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="top" secondItem="IZQ-Da-ymE" secondAttribute="bottom" constant="8" id="4bf-WW-Kta"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="dnE-sw-aWb" secondAttribute="bottom" id="C1l-ar-Lya"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dnE-sw-aWb" secondAttribute="trailing" id="RaP-Ui-WER"/>
+                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="UeO-Rj-goR"/>
+                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Y3y-NH-gtN"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="zhR-qF-7Hm"/>
+                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="zjK-vf-m1m"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" id="JrA-On-KDw"/>
+                    <connections>
+                        <outlet property="exerciseCollectionView" destination="dnE-sw-aWb" id="GP6-J7-CWZ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
