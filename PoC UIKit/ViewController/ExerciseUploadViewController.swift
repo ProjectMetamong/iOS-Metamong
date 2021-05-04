@@ -7,8 +7,16 @@
 
 import UIKit
 
-class ExerciseUploadViewController: UIViewController {
+class ExerciseUploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // MARK: - Properties
+    
+    lazy var imagePicker: UIImagePickerController = {
+        let picker: UIImagePickerController = UIImagePickerController()
+        picker.sourceType = .photoLibrary
+        picker.allowsEditing = true
+        picker.delegate = self
+        return picker
+    }()
     
     // MARK: - IBOutlets
     
@@ -22,6 +30,7 @@ class ExerciseUploadViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureUI()
     }
     
@@ -31,11 +40,23 @@ class ExerciseUploadViewController: UIViewController {
         self.thumbnailImageView.layer.cornerRadius = 20
         self.thumbnailImageView.clipsToBounds = true
         
+        let thumbnailImageTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.imagePickerTapped(_:)))
+        self.thumbnailImageView.isUserInteractionEnabled = true
+        self.thumbnailImageView.addGestureRecognizer(thumbnailImageTapGesture)
+        
         self.uploadButton.layer.cornerRadius = 20
         self.uploadButton.clipsToBounds = true
     }
 
-    // MARK: - IBActions
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let image = info[UIImagePickerController.InfoKey.editedImage] as! UIImage
+        self.thumbnailImageView.image = image
+        self.dismiss(animated: true, completion: nil)
+    }
     
-
+    
+    // MARK: - Actions
+    @objc func imagePickerTapped(_ sender: Any) {
+        self.present(self.imagePicker, animated: true, completion: nil)
+    }
 }

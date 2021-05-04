@@ -75,9 +75,6 @@
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="HsH-06-yLl" secondAttribute="height" multiplier="1:1" id="uft-YK-moy"/>
                                         </constraints>
-                                        <connections>
-                                            <outletCollection property="gestureRecognizers" destination="32p-oc-rMH" appends="YES" id="7vf-9g-TSe"/>
-                                        </connections>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="vjT-oy-iT3">
                                         <rect key="frame" x="207" y="8" width="183" height="179"/>
@@ -133,7 +130,6 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="29U-uf-dIJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="32p-oc-rMH"/>
             </objects>
             <point key="canvasLocation" x="944.92753623188412" y="880.58035714285711"/>
         </scene>
