@@ -60,6 +60,8 @@
 			children = (
 				1D95431D26413A8100D955C6 /* ViewController */,
 				1D95431C26413A7300D955C6 /* App */,
+				1D9543102641321C00D955C6 /* Info.plist */,
+				1D95430B2641321C00D955C6 /* Assets.xcassets */,
 			);
 			path = "PoC UIKit";
 			sourceTree = "<group>";
@@ -67,9 +69,7 @@
 		1D95431C26413A7300D955C6 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				1D95430B2641321C00D955C6 /* Assets.xcassets */,
 				1D95430D2641321C00D955C6 /* LaunchScreen.storyboard */,
-				1D9543102641321C00D955C6 /* Info.plist */,
 				1D9543022641321B00D955C6 /* AppDelegate.swift */,
 				1D9543042641321B00D955C6 /* SceneDelegate.swift */,
 				1D9543082641321B00D955C6 /* Main.storyboard */,

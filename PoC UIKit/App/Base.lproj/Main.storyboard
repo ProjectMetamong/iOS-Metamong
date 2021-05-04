@@ -39,7 +39,7 @@
         <!--Item-->
         <scene sceneID="g4q-DO-ZPT">
             <objects>
-                <viewController id="z0d-h9-JaP" sceneMemberID="viewController">
+                <viewController id="z0d-h9-JaP" customClass="ExerciseUploadViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Kgl-tu-RKB">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
