@@ -8,11 +8,25 @@
 import UIKit
 
 class ExerciseUploadViewController: UIViewController {
+    // MARK: - Properties
+    
+    // MARK: - IBOutlets
+    
+    @IBOutlet weak var thumbnailImageView: UIImageView!
+    @IBOutlet weak var titleTextField: UITextField!
+    @IBOutlet weak var subjectSegmentControl: UISegmentedControl!
+    @IBOutlet weak var detailTextView: UITextView!
+    @IBOutlet weak var uploadButton: UIButton!
+    
+    // MARK: - Lifecycles
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
     }
+    
+    // MARK: - Helpers
 
+    // MARK: - IBActions
+    
 
 }
