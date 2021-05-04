@@ -22,9 +22,18 @@ class ExerciseUploadViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureUI()
     }
     
     // MARK: - Helpers
+    func configureUI() {
+        self.thumbnailImageView.contentMode = .scaleAspectFill
+        self.thumbnailImageView.layer.cornerRadius = 20
+        self.thumbnailImageView.clipsToBounds = true
+        
+        self.uploadButton.layer.cornerRadius = 20
+        self.uploadButton.clipsToBounds = true
+    }
 
     // MARK: - IBActions
     
