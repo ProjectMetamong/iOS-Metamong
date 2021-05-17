@@ -8,3 +8,4 @@
 import UIKit
 
 let backgroundColor = UIColor(red: 252 / 255, green: 247 / 255, blue: 227 / 255, alpha: 1.0)
+let cornerRadius = CGFloat(20)

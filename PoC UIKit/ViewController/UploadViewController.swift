@@ -37,7 +37,7 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     // MARK: - Helpers
     func configureUI() {
         self.thumbnailImageView.contentMode = .scaleAspectFill
-        self.thumbnailImageView.layer.cornerRadius = 20
+        self.thumbnailImageView.layer.cornerRadius = cornerRadius
         self.thumbnailImageView.clipsToBounds = true
         
         let thumbnailImageTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.imagePickerTapped(_:)))
