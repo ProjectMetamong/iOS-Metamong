@@ -1,0 +1,6 @@
+framework module Pods_PoC_UIKit {
+  umbrella header "Pods-PoC UIKit-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Hero
 
 class SearchViewController: UIViewController {
     
@@ -28,11 +29,18 @@ class SearchViewController: UIViewController {
         self.resultCollectionView.delegate = self
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = false
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
     // MARK: - Helpers
     
     func configureUI() {
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.navigationItem.searchController = self.searchController
+        self.navigationController?.isHeroEnabled = true
     }
 
     // MARK: - IBAction
@@ -40,7 +48,7 @@ class SearchViewController: UIViewController {
 
 // MARK: - UICollectionViewDataSource
 
-extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension SearchViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 10
     }
@@ -57,6 +65,12 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         cell.timeLabel.text = "13m30s"
         cell.thumbnailImageView.image = #imageLiteral(resourceName: "Squat")
         cell.thumbnailImageView.contentMode = .scaleAspectFill
+        
+        cell.titleLabel.heroID = "title_\(indexPath.row)"
+        cell.creatorLabel.heroID = "creator_\(indexPath.row)"
+        cell.difficultyLabel.heroID = "difficulty_\(indexPath.row)"
+        cell.timeLabel.heroID = "time_\(indexPath.row)"
+        cell.thumbnailImageView.heroID = "thumbnail_\(indexPath.row)"
         
         return cell
     }
@@ -80,5 +94,17 @@ extension SearchViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 15
+    }
+}
+
+extension SearchViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        guard let detailViewController = storyboard?.instantiateViewController(identifier: "DetailViewController") as? DetailViewController else { return }
+        
+        detailViewController.isHeroEnabled = true
+        detailViewController.identifier = indexPath.row
+        
+        self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
