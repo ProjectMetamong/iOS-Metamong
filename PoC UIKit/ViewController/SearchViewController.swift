@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ExerciseCollectionViewController: UIViewController {
+class SearchViewController: UIViewController {
     
     // MARK: - Properties
     let cellIdentifier = "ExerciseCell"
@@ -15,7 +15,7 @@ class ExerciseCollectionViewController: UIViewController {
     
     // MARK: - IBOutlets
     
-    @IBOutlet weak var exerciseCollectionView: UICollectionView!
+    @IBOutlet weak var resultCollectionView: UICollectionView!
     
     // MARK: - Lifecycles
 
@@ -24,13 +24,14 @@ class ExerciseCollectionViewController: UIViewController {
         
         configureUI()
         
-        self.exerciseCollectionView.dataSource = self
-        self.exerciseCollectionView.delegate = self
+        self.resultCollectionView.dataSource = self
+        self.resultCollectionView.delegate = self
     }
     
     // MARK: - Helpers
     
     func configureUI() {
+        self.searchController.obscuresBackgroundDuringPresentation = false
         self.navigationItem.searchController = self.searchController
     }
 
@@ -39,7 +40,7 @@ class ExerciseCollectionViewController: UIViewController {
 
 // MARK: - UICollectionViewDataSource
 
-extension ExerciseCollectionViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 10
     }
@@ -63,7 +64,7 @@ extension ExerciseCollectionViewController: UICollectionViewDataSource, UICollec
 
 // MARK: - UICollectionViewDelegateFlowLayout
 
-extension ExerciseCollectionViewController: UICollectionViewDelegateFlowLayout {
+extension SearchViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (view.frame.width - 45) / 2
         return CGSize(width: width, height: width)

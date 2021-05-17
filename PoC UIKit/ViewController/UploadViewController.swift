@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ExerciseUploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class UploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // MARK: - Properties
     
     lazy var imagePicker: UIImagePickerController = {
