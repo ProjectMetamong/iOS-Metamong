@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="wAa-gN-ija">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="wAa-gN-ija">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Item-->
+        <!--운동 검색-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ExerciseCollectionViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
@@ -17,14 +17,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="IZQ-Da-ymE">
-                                <rect key="frame" x="0.0" y="44" width="414" height="56"/>
-                                <color key="backgroundColor" red="0.98784548039999998" green="0.9733265042" blue="0.91763967280000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </searchBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="dnE-sw-aWb">
-                                <rect key="frame" x="0.0" y="108" width="414" height="705"/>
-                                <color key="backgroundColor" red="0.98784548039999998" green="0.9733265042" blue="0.91763967280000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="725"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="OPv-mz-COA">
                                     <size key="itemSize" width="299" height="288"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -71,6 +66,7 @@
                                                 </label>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="Sqh-ly-9MS" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Xo9-2q-c0x" secondAttribute="trailing" constant="8" symbolic="YES" id="0pM-Az-fz8"/>
                                                 <constraint firstAttribute="bottom" secondItem="Xo9-2q-c0x" secondAttribute="bottom" constant="20" id="CE6-l6-WJ7"/>
                                                 <constraint firstAttribute="trailing" secondItem="wzL-tz-Beo" secondAttribute="trailing" id="Fbh-8E-UXC"/>
                                                 <constraint firstAttribute="trailing" secondItem="Sqh-ly-9MS" secondAttribute="trailing" constant="12" id="GuV-2f-CsE"/>
@@ -79,15 +75,21 @@
                                                 <constraint firstAttribute="bottom" secondItem="Sqh-ly-9MS" secondAttribute="bottom" constant="20" id="WRe-sG-gJd"/>
                                                 <constraint firstAttribute="bottom" secondItem="wzL-tz-Beo" secondAttribute="bottom" id="dKD-M5-pGT"/>
                                                 <constraint firstItem="Sqh-ly-9MS" firstAttribute="top" secondItem="dhg-GX-fWk" secondAttribute="bottom" constant="3" id="fce-SX-13K"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="gnj-bC-Ufe" secondAttribute="trailing" constant="20" symbolic="YES" id="gAe-0O-nmR"/>
                                                 <constraint firstItem="Xo9-2q-c0x" firstAttribute="leading" secondItem="dya-Nt-FEV" secondAttribute="leading" constant="12" id="hGD-vz-zMz"/>
                                                 <constraint firstItem="gnj-bC-Ufe" firstAttribute="top" secondItem="dya-Nt-FEV" secondAttribute="top" constant="12" id="j7P-kZ-ES5"/>
                                                 <constraint firstItem="gnj-bC-Ufe" firstAttribute="leading" secondItem="dya-Nt-FEV" secondAttribute="leading" constant="12" id="lOh-IE-mvP"/>
                                                 <constraint firstItem="wzL-tz-Beo" firstAttribute="top" secondItem="dya-Nt-FEV" secondAttribute="top" id="mDK-MT-x6I"/>
+                                                <constraint firstItem="dhg-GX-fWk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="dya-Nt-FEV" secondAttribute="leading" constant="20" symbolic="YES" id="nLq-sX-p12"/>
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <size key="customSize" width="299" height="288"/>
                                         <connections>
+                                            <outlet property="creatorLabel" destination="Xo9-2q-c0x" id="Lj3-X3-bwW"/>
+                                            <outlet property="difficultyLabel" destination="Sqh-ly-9MS" id="Me0-qE-TrB"/>
                                             <outlet property="thumbnailImageView" destination="wzL-tz-Beo" id="MQf-Xf-ZAL"/>
+                                            <outlet property="timeLabel" destination="gnj-bC-Ufe" id="bcF-xU-IUA"/>
+                                            <outlet property="titleLabel" destination="dhg-GX-fWk" id="dBj-03-f4v"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -96,25 +98,22 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="top" secondItem="IZQ-Da-ymE" secondAttribute="bottom" constant="8" id="4bf-WW-Kta"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="dnE-sw-aWb" secondAttribute="bottom" id="C1l-ar-Lya"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dnE-sw-aWb" secondAttribute="trailing" id="RaP-Ui-WER"/>
-                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="UeO-Rj-goR"/>
-                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Y3y-NH-gtN"/>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="zhR-qF-7Hm"/>
-                            <constraint firstItem="IZQ-Da-ymE" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="zjK-vf-m1m"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="0bt-hz-Znb"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DgL-f4-LOj"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="M9i-0O-7GI"/>
+                            <constraint firstItem="dnE-sw-aWb" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="Q12-Vq-50O"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="JrA-On-KDw"/>
+                    <navigationItem key="navigationItem" title="운동 검색" id="FZz-Li-8r7"/>
                     <connections>
                         <outlet property="exerciseCollectionView" destination="dnE-sw-aWb" id="GP6-J7-CWZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="944.92753623188412" y="137.94642857142856"/>
+            <point key="canvasLocation" x="1855.072463768116" y="137.94642857142856"/>
         </scene>
-        <!--Item-->
+        <!--Exercise Upload View Controller-->
         <scene sceneID="g4q-DO-ZPT">
             <objects>
                 <viewController id="z0d-h9-JaP" customClass="ExerciseUploadViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
@@ -181,7 +180,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VIe-8s-EF6"/>
-                        <color key="backgroundColor" red="0.98784548039999998" green="0.9733265042" blue="0.91763967280000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="qzE-hb-v9m" firstAttribute="top" secondItem="VIe-8s-EF6" secondAttribute="top" constant="12" id="5Fk-Hb-V09"/>
                             <constraint firstItem="FZj-Ir-aCa" firstAttribute="top" secondItem="qzE-hb-v9m" secondAttribute="bottom" constant="12" id="84o-VI-Nfx"/>
@@ -198,7 +197,7 @@
                             <constraint firstItem="XnQ-cf-TZ3" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="12" id="yad-DB-T1S"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="s0U-md-L6I"/>
+                    <tabBarItem key="tabBarItem" title="" image="video" catalog="system" id="s0U-md-L6I"/>
                     <connections>
                         <outlet property="detailTextView" destination="XnQ-cf-TZ3" id="VRF-6Z-jBd"/>
                         <outlet property="subjectSegmentControl" destination="0wu-uS-HZI" id="CQD-7k-6dv"/>
@@ -219,10 +218,9 @@
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="g5M-It-Rcd">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" red="0.92516416310000005" green="0.91041862959999997" blue="0.86666101220000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     </tabBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="TDs-s8-Qwn"/>
+                        <segue destination="D8i-lt-B48" kind="relationship" relationship="viewControllers" id="TDs-s8-Qwn"/>
                         <segue destination="z0d-h9-JaP" kind="relationship" relationship="viewControllers" id="djj-px-XPh"/>
                     </connections>
                 </tabBarController>
@@ -230,8 +228,29 @@
             </objects>
             <point key="canvasLocation" x="34.782608695652179" y="137.94642857142856"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Qjk-29-yl0">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="D8i-lt-B48" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="" image="square.grid.2x2" catalog="system" id="JrA-On-KDw"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="rUm-SA-thA">
+                        <rect key="frame" x="0.0" y="44" width="414" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="gGr-e8-cnF"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FYh-r5-ILM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="944.92753623188412" y="137.94642857142856"/>
+        </scene>
     </scenes>
     <resources>
+        <image name="square.grid.2x2" catalog="system" width="128" height="114"/>
+        <image name="video" catalog="system" width="128" height="83"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

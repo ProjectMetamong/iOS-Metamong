@@ -11,6 +11,7 @@ class ExerciseCollectionViewController: UIViewController {
     
     // MARK: - Properties
     let cellIdentifier = "ExerciseCell"
+    let searchController = UISearchController()
     
     // MARK: - IBOutlets
     
@@ -20,18 +21,17 @@ class ExerciseCollectionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        configureUI()
         
         self.exerciseCollectionView.dataSource = self
         self.exerciseCollectionView.delegate = self
-        
-        configureUI()
     }
     
     // MARK: - Helpers
     
     func configureUI() {
-        
+        self.navigationItem.searchController = self.searchController
     }
 
     // MARK: - IBAction
@@ -47,11 +47,14 @@ extension ExerciseCollectionViewController: UICollectionViewDataSource, UICollec
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! ExerciseCollectionViewCell
         
-        cell.backgroundColor = .red
         cell.layer.cornerRadius = 20
         cell.layer.masksToBounds = true
         
-        cell.thumbnailImageView.image = #imageLiteral(resourceName: "squat")
+        cell.titleLabel.text = "벤치프레스"
+        cell.creatorLabel.text = "말왕"
+        cell.difficultyLabel.text = "중급자"
+        cell.timeLabel.text = "13m30s"
+        cell.thumbnailImageView.image = #imageLiteral(resourceName: "Squat")
         cell.thumbnailImageView.contentMode = .scaleAspectFill
         
         return cell

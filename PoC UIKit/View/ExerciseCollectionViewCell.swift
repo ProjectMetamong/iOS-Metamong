@@ -14,6 +14,10 @@ class ExerciseCollectionViewCell: UICollectionViewCell {
     
     // MARK: - IBOutlets
     @IBOutlet weak var thumbnailImageView: UIImageView!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var creatorLabel: UILabel!
+    @IBOutlet weak var difficultyLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
     
     
     // MARK: - Helpers
