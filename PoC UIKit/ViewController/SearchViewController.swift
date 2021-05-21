@@ -45,6 +45,7 @@ class SearchViewController: UIViewController {
         self.resultCollectionView.backgroundColor = backgroundColor
         
         self.searchController.obscuresBackgroundDuringPresentation = false
+        self.searchController.hidesNavigationBarDuringPresentation = false
         self.navigationItem.searchController = self.searchController
         self.navigationController?.isHeroEnabled = true
     }
