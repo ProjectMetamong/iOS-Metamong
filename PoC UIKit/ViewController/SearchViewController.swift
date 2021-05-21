@@ -7,12 +7,14 @@
 
 import UIKit
 import Hero
+import Nuke
 
 class SearchViewController: UIViewController {
     
     // MARK: - Properties
     let cellIdentifier = "ExerciseCell"
     let searchController = UISearchController()
+    let viewModel: SearchViewModel = SearchViewModel()
     
     // MARK: - IBOutlets
     
@@ -57,20 +59,24 @@ class SearchViewController: UIViewController {
 
 extension SearchViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return self.viewModel.exercises.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! ExerciseCollectionViewCell
         
+        let exercise = self.viewModel.exercises[indexPath.row]
+        
         cell.layer.cornerRadius = cornerRadius
         cell.layer.masksToBounds = true
         
-        cell.titleLabel.text = "벤치프레스"
-        cell.creatorLabel.text = "말왕"
-        cell.difficultyLabel.text = "중급자"
-        cell.timeLabel.text = "13m30s"
-        cell.thumbnailImageView.image = #imageLiteral(resourceName: "Squat")
+        cell.titleLabel.text = exercise.title
+        cell.creatorLabel.text = exercise.creator
+        cell.difficultyLabel.text = exercise.difficulty
+        cell.timeLabel.text = exercise.length
+        
+        guard let thumbnailURL = exercise.thumbnailURL else { return UICollectionViewCell() }
+        Nuke.loadImage(with: thumbnailURL, into: cell.thumbnailImageView)
         cell.thumbnailImageView.contentMode = .scaleAspectFill
         
         cell.titleLabel.heroID = "title_\(indexPath.row)"
@@ -106,11 +112,13 @@ extension SearchViewController: UICollectionViewDelegateFlowLayout {
 
 extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        let exercise = self.viewModel.exercises[indexPath.row]
         let detailViewController = DetailViewController()
         
         detailViewController.hero.isEnabled = true
         detailViewController.identifier = indexPath.row
+        
+        detailViewController.viewModel = DetailViewModel(exercise: exercise)
         
         self.navigationController?.hero.navigationAnimationType = .fade
         self.navigationController?.pushViewController(detailViewController, animated: true)

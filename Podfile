@@ -8,5 +8,6 @@ target 'PoC UIKit' do
   # Pods for PoC UIKit
   pod 'Hero'
   pod 'SnapKit'
+  pod 'Nuke'
 
 end

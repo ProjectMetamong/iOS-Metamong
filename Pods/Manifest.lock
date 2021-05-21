@@ -1,20 +1,24 @@
 PODS:
   - Hero (1.6.1)
+  - Nuke (9.5.0)
   - SnapKit (5.0.1)
 
 DEPENDENCIES:
   - Hero
+  - Nuke
   - SnapKit
 
 SPEC REPOS:
   trunk:
     - Hero
+    - Nuke
     - SnapKit
 
 SPEC CHECKSUMS:
   Hero: 215865ba3ae41dd9bb08cd6c60a645529c6fc94b
+  Nuke: 6f400a4ea957e09149ec335a3c6acdcc814d89e4
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
 
-PODFILE CHECKSUM: bd31e17bd89ba35f3e1b6f7947d2377b6bf9b8c6
+PODFILE CHECKSUM: 141588d8329e46de8ccc8b740388450316bc5bbd
 
 COCOAPODS: 1.10.1

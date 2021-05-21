@@ -7,22 +7,23 @@
 
 import UIKit
 import SnapKit
+import Nuke
 
 class DetailViewController: UIViewController {
     
     // MARK: - Properties
     var identifier: Int?
+    var viewModel: DetailViewModel?
     
     var thumbnailImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = #imageLiteral(resourceName: "Squat")
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
     var timeLabel: UILabel = {
         let label = UILabel()
-        label.text = "13m30s"
+        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
         label.font = UIFont.systemFont(ofSize: 40, weight: .bold)
         label.textColor = .white
         return label
@@ -30,7 +31,7 @@ class DetailViewController: UIViewController {
     
     var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "벤치프레스"
+        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
         label.font = UIFont.systemFont(ofSize: 50, weight: .heavy)
         label.textColor = .white
         return label
@@ -38,7 +39,7 @@ class DetailViewController: UIViewController {
     
     var difficultyLabel: UILabel = {
         let label = UILabel()
-        label.text = "중급자"
+        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
@@ -46,7 +47,7 @@ class DetailViewController: UIViewController {
     
     var creatorLabel: UILabel = {
         let label = UILabel()
-        label.text = "말왕"
+        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
@@ -54,7 +55,6 @@ class DetailViewController: UIViewController {
     
     var descriptionTextView: UITextView = {
         let textView = UITextView()
-        textView.text = "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이보전하세"
         textView.isUserInteractionEnabled = false
         textView.textAlignment = .left
         textView.font = UIFont.systemFont(ofSize: 20, weight: .medium)
@@ -168,6 +168,20 @@ class DetailViewController: UIViewController {
             $0.right.equalTo(self.view.snp.right).offset(-15)
             $0.height.equalTo(50)
         }
+        
+        guard let viewModel = self.viewModel else { return }
+        guard let thumbnailURL = viewModel.exercise.thumbnailURL else { return }
+        Nuke.loadImage(with: thumbnailURL, into: self.thumbnailImageView)
+        self.titleLabel.text = viewModel.exercise.title
+        self.timeLabel.text = viewModel.exercise.length
+        self.creatorLabel.text = viewModel.exercise.creator
+        self.difficultyLabel.text = viewModel.exercise.difficulty
+        self.descriptionTextView.text = viewModel.exercise.description
+        
+        self.titleLabel.textColor = .white
+        self.timeLabel.textColor = .white
+        self.creatorLabel.textColor = .white
+        self.difficultyLabel.textColor = .white
     }
     
     // MARK: - IBActions
