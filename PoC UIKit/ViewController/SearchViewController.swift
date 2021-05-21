@@ -100,11 +100,12 @@ extension SearchViewController: UICollectionViewDelegateFlowLayout {
 extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let detailViewController = storyboard?.instantiateViewController(identifier: "DetailViewController") as? DetailViewController else { return }
+        let detailViewController = DetailViewController()
         
-        detailViewController.isHeroEnabled = true
+        detailViewController.hero.isEnabled = true
         detailViewController.identifier = indexPath.row
         
+        self.navigationController?.hero.navigationAnimationType = .fade
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
