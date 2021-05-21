@@ -57,7 +57,7 @@ class DetailViewController: UIViewController {
         textView.text = "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이보전하세"
         textView.isUserInteractionEnabled = false
         textView.textAlignment = .left
-        textView.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        textView.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         textView.backgroundColor = .clear
         return textView
     }()
@@ -66,8 +66,9 @@ class DetailViewController: UIViewController {
         let button = UIButton()
         button.layer.cornerRadius = cornerRadius
         button.layer.masksToBounds = true
-        button.backgroundColor = .systemIndigo
+        button.backgroundColor = buttonColor
         button.setTitle("시작하기", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
         return button
     }()
     

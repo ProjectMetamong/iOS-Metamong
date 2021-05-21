@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class UploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // MARK: - Properties
@@ -18,13 +19,30 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         return picker
     }()
     
+    var detailTextView: UITextView = {
+        let textView = UITextView()
+        textView.text = "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이보전하세"
+        textView.textAlignment = .left
+        textView.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        textView.backgroundColor = .clear
+        return textView
+    }()
+    
+    var uploadButton: UIButton = {
+        let button = UIButton()
+        button.layer.cornerRadius = cornerRadius
+        button.layer.masksToBounds = true
+        button.backgroundColor = buttonColor
+        button.setTitle("영상 선택 및 업로드", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        return button
+    }()
+    
     // MARK: - IBOutlets
     
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var subjectSegmentControl: UISegmentedControl!
-    @IBOutlet weak var detailTextView: UITextView!
-    @IBOutlet weak var uploadButton: UIButton!
     
     // MARK: - Lifecycles
 
@@ -36,6 +54,23 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     
     // MARK: - Helpers
     func configureUI() {
+        self.view.addSubview(detailTextView)
+        self.view.addSubview(uploadButton)
+        
+        self.detailTextView.snp.makeConstraints {
+            $0.top.equalTo(self.thumbnailImageView.snp.bottom).offset(15)
+            $0.left.equalTo(self.view.snp.left).offset(15)
+            $0.right.equalTo(self.view.snp.right).offset(-15)
+            $0.bottom.equalTo(self.uploadButton.snp.top).offset(15)
+        }
+        
+        self.uploadButton.snp.makeConstraints {
+            $0.left.equalTo(self.view.snp.left).offset(15)
+            $0.right.equalTo(self.view.snp.right).offset(-15)
+            $0.bottom.equalTo(self.view.snp.bottomMargin).offset(-15)
+            $0.height.equalTo(50)
+        }
+        
         self.view.backgroundColor = backgroundColor
         self.navigationController?.navigationBar.backgroundColor = backgroundColor
         self.navigationController?.navigationBar.barTintColor = backgroundColor
@@ -47,9 +82,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         let thumbnailImageTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.imagePickerTapped(_:)))
         self.thumbnailImageView.isUserInteractionEnabled = true
         self.thumbnailImageView.addGestureRecognizer(thumbnailImageTapGesture)
-        
-        self.uploadButton.layer.cornerRadius = 20
-        self.uploadButton.clipsToBounds = true
     }
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
