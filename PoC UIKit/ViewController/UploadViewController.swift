@@ -36,6 +36,10 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     
     // MARK: - Helpers
     func configureUI() {
+        self.view.backgroundColor = backgroundColor
+        self.navigationController?.navigationBar.backgroundColor = backgroundColor
+        self.navigationController?.navigationBar.barTintColor = backgroundColor
+        
         self.thumbnailImageView.contentMode = .scaleAspectFill
         self.thumbnailImageView.layer.cornerRadius = cornerRadius
         self.thumbnailImageView.clipsToBounds = true

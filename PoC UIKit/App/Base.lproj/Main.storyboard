@@ -116,7 +116,7 @@
             </objects>
             <point key="canvasLocation" x="-784" y="1583"/>
         </scene>
-        <!--Upload View Controller-->
+        <!--업로드-->
         <scene sceneID="g4q-DO-ZPT">
             <objects>
                 <viewController id="z0d-h9-JaP" customClass="UploadViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
@@ -124,12 +124,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="업로드" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qzE-hb-v9m">
-                                <rect key="frame" x="15" y="59" width="104" height="48"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="40"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pbf-xl-iTY">
                                 <rect key="frame" x="15" y="758" width="384" height="40"/>
                                 <color key="backgroundColor" red="0.97849577669999999" green="0.53369444610000005" blue="0.5333222151" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -139,14 +133,14 @@
                                 </state>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="XnQ-cf-TZ3">
-                                <rect key="frame" x="15" y="329" width="384" height="414"/>
+                                <rect key="frame" x="15" y="355" width="384" height="388"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="FZj-Ir-aCa">
-                                <rect key="frame" x="15" y="122" width="384" height="192"/>
+                                <rect key="frame" x="15" y="148" width="384" height="192"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HsH-06-yLl">
                                         <rect key="frame" x="0.0" y="2.5" width="187" height="187"/>
@@ -185,22 +179,19 @@
                         <viewLayoutGuide key="safeArea" id="VIe-8s-EF6"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="qzE-hb-v9m" firstAttribute="top" secondItem="VIe-8s-EF6" secondAttribute="top" constant="15" id="5Fk-Hb-V09"/>
-                            <constraint firstItem="FZj-Ir-aCa" firstAttribute="top" secondItem="qzE-hb-v9m" secondAttribute="bottom" constant="15" id="84o-VI-Nfx"/>
-                            <constraint firstItem="VIe-8s-EF6" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="qzE-hb-v9m" secondAttribute="trailing" constant="15" id="8Na-5Z-bWj"/>
                             <constraint firstItem="VIe-8s-EF6" firstAttribute="trailing" secondItem="FZj-Ir-aCa" secondAttribute="trailing" constant="15" id="EbP-gl-3lI"/>
                             <constraint firstItem="VIe-8s-EF6" firstAttribute="bottom" secondItem="pbf-xl-iTY" secondAttribute="bottom" constant="15" id="FwL-8e-hx5"/>
                             <constraint firstItem="pbf-xl-iTY" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="15" id="RLA-Cc-mf3"/>
                             <constraint firstItem="XnQ-cf-TZ3" firstAttribute="top" secondItem="FZj-Ir-aCa" secondAttribute="bottom" constant="15" id="YFD-TX-mAx"/>
                             <constraint firstItem="FZj-Ir-aCa" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="15" id="ZZx-Ev-wQR"/>
                             <constraint firstItem="VIe-8s-EF6" firstAttribute="trailing" secondItem="pbf-xl-iTY" secondAttribute="trailing" constant="15" id="ago-Qk-Glz"/>
-                            <constraint firstItem="qzE-hb-v9m" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="15" id="kUT-8A-SKg"/>
                             <constraint firstItem="pbf-xl-iTY" firstAttribute="top" secondItem="XnQ-cf-TZ3" secondAttribute="bottom" constant="15" id="mAT-QW-8Lp"/>
                             <constraint firstItem="VIe-8s-EF6" firstAttribute="trailing" secondItem="XnQ-cf-TZ3" secondAttribute="trailing" constant="15" id="nnd-P4-610"/>
+                            <constraint firstItem="VIe-8s-EF6" firstAttribute="top" secondItem="FZj-Ir-aCa" secondAttribute="top" constant="-8" id="vNO-ON-Ff0"/>
                             <constraint firstItem="XnQ-cf-TZ3" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="15" id="yad-DB-T1S"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="" image="video" catalog="system" id="s0U-md-L6I"/>
+                    <navigationItem key="navigationItem" title="업로드" id="sqh-p6-OdF"/>
                     <connections>
                         <outlet property="detailTextView" destination="XnQ-cf-TZ3" id="VRF-6Z-jBd"/>
                         <outlet property="subjectSegmentControl" destination="0wu-uS-HZI" id="CQD-7k-6dv"/>
@@ -211,7 +202,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="29U-uf-dIJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="944.92753623188412" y="880.58035714285711"/>
+            <point key="canvasLocation" x="945" y="1613"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="bOl-Sd-Mwi">
@@ -224,7 +215,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="D8i-lt-B48" kind="relationship" relationship="viewControllers" id="btn-Cr-oOh"/>
-                        <segue destination="z0d-h9-JaP" kind="relationship" relationship="viewControllers" id="KFS-WH-nJF"/>
+                        <segue destination="hBw-Cy-K2A" kind="relationship" relationship="viewControllers" id="KFS-WH-nJF"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="guH-RN-xeM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -249,6 +240,25 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FYh-r5-ILM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-784" y="881"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Q38-yY-BEc">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hBw-Cy-K2A" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="" image="video" catalog="system" id="s0U-md-L6I"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="DwA-Gq-QIh">
+                        <rect key="frame" x="0.0" y="44" width="414" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="z0d-h9-JaP" kind="relationship" relationship="rootViewController" id="62K-7u-bp4"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PLN-Dg-6Hj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="944.92753623188412" y="880.58035714285711"/>
         </scene>
     </scenes>
     <resources>

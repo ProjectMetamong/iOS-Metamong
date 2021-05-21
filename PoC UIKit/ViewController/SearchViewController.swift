@@ -38,6 +38,12 @@ class SearchViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
+        self.view.backgroundColor = backgroundColor
+        self.navigationController?.navigationBar.backgroundColor = backgroundColor
+        self.navigationController?.navigationBar.barTintColor = backgroundColor
+        self.tabBarController?.tabBar.barTintColor = backgroundColor
+        self.resultCollectionView.backgroundColor = backgroundColor
+        
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.navigationItem.searchController = self.searchController
         self.navigationController?.isHeroEnabled = true
