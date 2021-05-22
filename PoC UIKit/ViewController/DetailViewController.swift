@@ -24,7 +24,7 @@ class DetailViewController: UIViewController {
     var timeLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = UIFont.systemFont(ofSize: 40, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
     }()
@@ -32,7 +32,7 @@ class DetailViewController: UIViewController {
     var titleLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = UIFont.systemFont(ofSize: 50, weight: .heavy)
+        label.font = UIFont.systemFont(ofSize: 40, weight: .heavy)
         label.textColor = .white
         return label
     }()
@@ -40,7 +40,7 @@ class DetailViewController: UIViewController {
     var difficultyLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textColor = .white
         return label
     }()
@@ -48,7 +48,7 @@ class DetailViewController: UIViewController {
     var creatorLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textColor = .white
         return label
     }()
@@ -62,20 +62,21 @@ class DetailViewController: UIViewController {
         return textView
     }()
     
-    var startButton: UIButton = {
+    lazy var startButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = cornerRadius
         button.layer.masksToBounds = true
         button.backgroundColor = buttonColor
         button.setTitle("시작하기", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        button.addTarget(self, action: #selector(self.handleStartButtonTapped), for: .touchUpInside)
         return button
     }()
     
     lazy var closeButton: UIButton = {
         let button = UIButton()
         button.setImage(.init(systemName: "xmark.circle"), for: .normal)
-        button.addTarget(self, action: #selector(self.handleClose), for: .touchUpInside)
+        button.addTarget(self, action: #selector(self.handleCloseButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -186,7 +187,16 @@ class DetailViewController: UIViewController {
     
     // MARK: - IBActions
     
-    @objc func handleClose() {
+    @objc func handleCloseButtonTapped() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func handleStartButtonTapped() {
+        let exerciseReferenceViewController = ExerciseReferenceViewController()
+        
+        exerciseReferenceViewController.hero.isEnabled = true
+        
+        self.navigationController?.hero.navigationAnimationType = .fade
+        self.navigationController?.pushViewController(exerciseReferenceViewController, animated: true)
     }
 }
