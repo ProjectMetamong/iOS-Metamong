@@ -74,6 +74,11 @@ class ExerciseReferenceViewController: UIViewController {
         self.tabBarController?.tabBar.isHidden = true
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        self.referenceVideo.removeTimeObserver(self.timeObserver!)
+        self.timeObserver = nil
+    }
+    
     // MARK: - Helpers
     
     func configureUI() {
@@ -115,8 +120,6 @@ class ExerciseReferenceViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        self.referenceVideo.removeTimeObserver(self.timeObserver!)
-        self.timeObserver = nil
         self.navigationController?.popViewController(animated: true)
     }
     
