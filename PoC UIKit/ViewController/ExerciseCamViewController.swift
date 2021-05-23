@@ -9,21 +9,41 @@ import UIKit
 import AVKit
 import SnapKit
 
-class ExerciseCamViewController: UIViewController {
+class ExerciseCamViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     // MARK: - Properties
     
-    lazy var camVideo: AVPlayer = {
-        let videoURL = URL(fileURLWithPath: Bundle.main.path(forResource: "test", ofType: "mp4")!)
-        let player = AVPlayer(url: videoURL)
-        player.play()
-        return player
+    private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
+    
+    lazy var captureSession: AVCaptureSession = {
+        let session = AVCaptureSession()
+    
+        session.beginConfiguration()
+        session.sessionPreset = AVCaptureSession.Preset.high
+        
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else { return session }
+        guard let deviceInput = try? AVCaptureDeviceInput(device: videoDevice) else { return session }
+        guard session.canAddInput(deviceInput) else { return session }
+        session.addInput(deviceInput)
+        
+        let dataOutput = AVCaptureVideoDataOutput()
+        guard session.canAddOutput(dataOutput) else { return session }
+        session.addOutput(dataOutput)
+        dataOutput.alwaysDiscardsLateVideoFrames = true
+        dataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
+        dataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
+    
+        session.commitConfiguration()
+        
+        return session
     }()
     
-    lazy var camVideoLayer: AVPlayerLayer = {
-        let layer = AVPlayerLayer(player: self.camVideo)
+    lazy var captureLayer: AVCaptureVideoPreviewLayer = {
+        let layer = AVCaptureVideoPreviewLayer()
         layer.frame = view.bounds
         layer.videoGravity = .resizeAspectFill
+        layer.session = self.captureSession
+        self.captureSession.startRunning()
         return layer
     }()
     
@@ -48,8 +68,6 @@ class ExerciseCamViewController: UIViewController {
         return slider
     }()
     
-    var timeObserver: Any?
-    
     // MARK: - Lifecycles
     
     override func viewDidLoad() {
@@ -66,18 +84,9 @@ class ExerciseCamViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
-        self.view.layer.addSublayer(camVideoLayer)
+        self.view.layer.addSublayer(captureLayer)
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.progressBar)
-            
-        self.timeObserver = self.camVideo.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
-            if self.camVideo.currentItem?.status == .readyToPlay {
-                let duration = CMTimeGetSeconds((self.camVideo.currentItem?.asset.duration)!)
-                let currentTime = CMTimeGetSeconds((self.camVideo.currentTime()))
-                let progress = Float(currentTime / duration) * 100
-                self.progressBar.value = progress
-            }
-        }
         
         self.stopButton.snp.makeConstraints {
             $0.right.equalTo(self.view.snp.right).offset(-15)
@@ -96,8 +105,6 @@ class ExerciseCamViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        self.camVideo.removeTimeObserver(self.timeObserver!)
-        self.timeObserver = nil
         self.navigationController?.popToViewController(ofClass: DetailViewController.self)
     }
 }

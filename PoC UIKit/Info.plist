@@ -64,5 +64,7 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSCameraUsageDescription</key>
+	<string>포즈감지를 위해 카메라 사용을 허용해주세요</string>
 </dict>
 </plist>
