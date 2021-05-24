@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Vision
 
 extension Int {
     func toTimeString() -> String {
@@ -33,5 +34,11 @@ extension UINavigationController {
         if let vc = viewControllers.last(where: { $0.isKind(of: ofClass) }) {
             popToViewController(vc, animated: animated)
         }
+    }
+}
+
+extension VNRecognizedPoint {
+    func toCGPoint() -> CGPoint {
+        return CGPoint(x: self.location.x, y: 1 - self.location.y)
     }
 }
