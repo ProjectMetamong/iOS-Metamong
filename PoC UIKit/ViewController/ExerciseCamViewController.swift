@@ -17,7 +17,7 @@ class ExerciseCamViewController: UIViewController {
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     
     private var pointsPath = UIBezierPath()
-    private var handPoseRequest = VNDetectHumanHandPoseRequest()
+    private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -96,7 +96,6 @@ class ExerciseCamViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
-        handPoseRequest.maximumHandCount = 1
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -132,34 +131,6 @@ class ExerciseCamViewController: UIViewController {
         }
     }
     
-    func showPoints(_ points: [CGPoint], color: UIColor) {
-        pointsPath.removeAllPoints()
-        for point in points {
-            let path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: 10, height: 10))
-            pointsPath.append(path)
-        }
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        overlayLayer.path = pointsPath.cgPath
-        CATransaction.commit()
-    }
-    
-    func processPoints(thumbTip: CGPoint?, indexTip: CGPoint?, middleTip: CGPoint?, ringTip: CGPoint?, littleTip: CGPoint?) {
-        // 두 포인트가 다 잘 뽑혔는지 확인해서
-        guard let thumbPoint = thumbTip, let indexPoint = indexTip, let middlePoint = middleTip, let ringPoint = ringTip, let littlePoint = littleTip else {
-            // 둘다 없고, 없어진지 2초가 넘었으면 있던거 다 날려버려
-            self.showPoints([], color: .clear)
-            return
-        }
-        // 잘있으면 그 두 포인트를 실제 캡쳐가 이뤄진 영상에서의 좌표로 변환해주고 gestureProcessor의 processPointsPair를 호출한다.
-        let thumbPointConverted = self.captureLayer.layerPointConverted(fromCaptureDevicePoint: thumbPoint)
-        let indexPointConverted = self.captureLayer.layerPointConverted(fromCaptureDevicePoint: indexPoint)
-        let middlePointConverted = self.captureLayer.layerPointConverted(fromCaptureDevicePoint: middlePoint)
-        let ringPointConverted = self.captureLayer.layerPointConverted(fromCaptureDevicePoint: ringPoint)
-        let littlePointConverted = self.captureLayer.layerPointConverted(fromCaptureDevicePoint: littlePoint)
-        self.showPoints([thumbPointConverted, indexPointConverted, middlePointConverted, ringPointConverted, littlePointConverted], color: .green)
-    }
-    
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
@@ -170,59 +141,115 @@ class ExerciseCamViewController: UIViewController {
 // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
 
 extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
-    // 앞서 지정해놨던 버퍼에서 받아온 이미지를 가지고 이거저거 하는 부분
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
-        var thumbTip: CGPoint?
-        var indexTip: CGPoint?
-        var middleTip: CGPoint?
-        var ringTip: CGPoint?
-        var littleTip: CGPoint?
-        
-        // scope를 벗어나기 전 호출된다.
-        defer {
-            // 뽑힌 포인트로 processPoints를 호출한다.
-            DispatchQueue.main.sync {
-                self.processPoints(thumbTip: thumbTip,
-                                   indexTip: indexTip,
-                                   middleTip: middleTip,
-                                   ringTip: ringTip,
-                                   littleTip: littleTip)
-            }
-        }
-
         let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
         do {
-            // request를 requestHandler에게 보내서 observation을 받아오고, 그로부터 원하는 포인트를 뽑아내는 부분.
-            try handler.perform([handPoseRequest])
-            guard let observation = handPoseRequest.results?.first else {
+            try handler.perform([bodyPoseRequest])
+            guard let observation = bodyPoseRequest.results?.first else {
                 return
             }
-            
-            print(observation)
-            
-            let thumbPoints = try observation.recognizedPoints(.thumb)
-            let indexFingerPoints = try observation.recognizedPoints(.indexFinger)
-            let middleTipPoint = try observation.recognizedPoint(.middleTip)
-            let ringTipPoint = try observation.recognizedPoint(.ringTip)
-            let littleTipPoint = try observation.recognizedPoint(.littleTip)
-            
-            guard let thumbTipPoint = thumbPoints[.thumbTip], let indexTipPoint = indexFingerPoints[.indexTip] else {
-                return
+            let observedBody = Skeleton(observed: observation, delegate: self)
+            DispatchQueue.main.sync {
+                observedBody.showSkeleton(for: self.captureLayer, on: self.overlayLayer)
             }
-            guard thumbTipPoint.confidence > 0.3 && indexTipPoint.confidence > 0.3 else {
-                return
-            }
-            
-            thumbTip = CGPoint(x: thumbTipPoint.location.x, y: 1 - thumbTipPoint.location.y)
-            indexTip = CGPoint(x: indexTipPoint.location.x, y: 1 - indexTipPoint.location.y)
-            middleTip = CGPoint(x: middleTipPoint.location.x, y: 1 - middleTipPoint.location.y)
-            ringTip = CGPoint(x: ringTipPoint.location.x, y: 1 - ringTipPoint.location.y)
-            littleTip = CGPoint(x: littleTipPoint.location.x, y: 1 - littleTipPoint.location.y)
-            
+            return
         } catch {
             captureSession.stopRunning()
             return
         }
+    }
+}
+
+extension ExerciseCamViewController: SkeletonDelegate {
+    func showBodyPoints(points: [CGPoint]) {
+        self.pointsPath.removeAllPoints()
+        for point in points {
+            let path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: 10, height: 10))
+            self.pointsPath.append(path)
+        }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.overlayLayer.path = pointsPath.cgPath
+        CATransaction.commit()
+    }
+}
+
+
+class Skeleton {
+    var leftAnkle: CGPoint?
+    var leftKnee: CGPoint?
+    var leftHip: CGPoint?
+    var leftShoulder: CGPoint?
+    var leftElbow: CGPoint?
+    var leftWrist: CGPoint?
+    var leftEye: CGPoint?
+    var leftEar: CGPoint?
+    var rightAnkle: CGPoint?
+    var rightKnee: CGPoint?
+    var rightHip: CGPoint?
+    var rightShoulder: CGPoint?
+    var rightElbow: CGPoint?
+    var rightWrist: CGPoint?
+    var rightEye: CGPoint?
+    var rightEar: CGPoint?
+    var nose: CGPoint?
+    var delegate: SkeletonDelegate
+    
+    init(observed body: VNHumanBodyPoseObservation, delegate: SkeletonDelegate) {
+        self.delegate = delegate
+        do {
+            self.leftAnkle = try body.recognizedPoint(.leftAnkle).toCGPoint()
+            self.leftKnee = try body.recognizedPoint(.leftKnee).toCGPoint()
+            self.leftHip = try body.recognizedPoint(.leftHip).toCGPoint()
+            self.leftShoulder = try body.recognizedPoint(.leftShoulder).toCGPoint()
+            self.leftElbow = try body.recognizedPoint(.leftElbow).toCGPoint()
+            self.leftWrist = try body.recognizedPoint(.leftWrist).toCGPoint()
+            self.leftEye = try body.recognizedPoint(.leftEye).toCGPoint()
+            self.leftEar = try body.recognizedPoint(.leftEar).toCGPoint()
+            self.rightAnkle = try body.recognizedPoint(.rightAnkle).toCGPoint()
+            self.rightKnee = try body.recognizedPoint(.rightKnee).toCGPoint()
+            self.rightHip = try body.recognizedPoint(.rightHip).toCGPoint()
+            self.rightShoulder = try body.recognizedPoint(.rightShoulder).toCGPoint()
+            self.rightElbow = try body.recognizedPoint(.rightElbow).toCGPoint()
+            self.rightWrist = try body.recognizedPoint(.rightWrist).toCGPoint()
+            self.rightEye = try body.recognizedPoint(.rightEye).toCGPoint()
+            self.rightEar = try body.recognizedPoint(.rightEar).toCGPoint()
+            self.nose = try body.recognizedPoint(.nose).toCGPoint()
+        } catch {
+            print("??")
+        }
+    }
+    
+    func showSkeleton(for captureLayer: AVCaptureVideoPreviewLayer, on overlayLayer: CAShapeLayer) {
+        var bodyPoints: [CGPoint] = []
+        
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftAnkle!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftKnee!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftHip!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftShoulder!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftElbow!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftWrist!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftEye!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.leftEar!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightAnkle!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightKnee!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightHip!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightShoulder!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightElbow!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightWrist!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightEye!))
+        bodyPoints.append(captureLayer.layerPointConverted(fromCaptureDevicePoint: self.rightEar!))
+        
+        self.delegate.showBodyPoints(points: bodyPoints)
+    }
+}
+
+protocol SkeletonDelegate {
+    func showBodyPoints(points: [CGPoint])
+}
+
+extension VNRecognizedPoint {
+    func toCGPoint() -> CGPoint {
+        return CGPoint(x: self.location.x, y: 1 - self.location.y)
     }
 }
