@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1D2643A8265A87B800B70A27 /* ExerciseCamViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643A7265A87B800B70A27 /* ExerciseCamViewController.swift */; };
-		1D2643AC265BB16100B70A27 /* Skeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643AB265BB16100B70A27 /* Skeleton.swift */; };
+		1D2643AC265BB16100B70A27 /* Pose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643AB265BB16100B70A27 /* Pose.swift */; };
 		1D5573702657E5FD00CBD418 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D55736F2657E5FD00CBD418 /* Exercise.swift */; };
 		1D5573732657E76400CBD418 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573722657E76400CBD418 /* SearchViewModel.swift */; };
 		1D5573752657ED2800CBD418 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573742657ED2800CBD418 /* Extensions.swift */; };
@@ -31,7 +31,7 @@
 /* Begin PBXFileReference section */
 		0BD75604143C1D392937F92B /* Pods_PoC_UIKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoC_UIKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D2643A7265A87B800B70A27 /* ExerciseCamViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCamViewController.swift; sourceTree = "<group>"; };
-		1D2643AB265BB16100B70A27 /* Skeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skeleton.swift; sourceTree = "<group>"; };
+		1D2643AB265BB16100B70A27 /* Pose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pose.swift; sourceTree = "<group>"; };
 		1D55736F2657E5FD00CBD418 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		1D5573722657E76400CBD418 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		1D5573742657ED2800CBD418 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -146,7 +146,7 @@
 		1DC59BCF265278ED00A10623 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				1D2643AB265BB16100B70A27 /* Skeleton.swift */,
+				1D2643AB265BB16100B70A27 /* Pose.swift */,
 				1D55736F2657E5FD00CBD418 /* Exercise.swift */,
 			);
 			path = Model;
@@ -309,7 +309,7 @@
 				1D9543032641321B00D955C6 /* AppDelegate.swift in Sources */,
 				1D5573752657ED2800CBD418 /* Extensions.swift in Sources */,
 				1D9543052641321B00D955C6 /* SceneDelegate.swift in Sources */,
-				1D2643AC265BB16100B70A27 /* Skeleton.swift in Sources */,
+				1D2643AC265BB16100B70A27 /* Pose.swift in Sources */,
 				1D5573732657E76400CBD418 /* SearchViewModel.swift in Sources */,
 				1DD452F22652664A0002B545 /* Constants.swift in Sources */,
 				1D5573772657EEC100CBD418 /* DetailViewModel.swift in Sources */,

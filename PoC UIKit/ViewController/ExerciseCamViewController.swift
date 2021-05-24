@@ -19,6 +19,8 @@ class ExerciseCamViewController: UIViewController {
     private var pointsPath = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     
+    private let startingTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+    
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
     
@@ -56,6 +58,8 @@ class ExerciseCamViewController: UIViewController {
         layer.frame = view.bounds
         layer.lineWidth = 5
         layer.fillColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
+        layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+        layer.lineWidth = 2
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
@@ -148,9 +152,9 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
             guard let observation = bodyPoseRequest.results?.first else {
                 return
             }
-            let observedBody = Skeleton(observed: observation, delegate: self)
+            var observedBody = Pose(observed: observation, delegate: self)
             DispatchQueue.main.sync {
-                observedBody.showSkeleton(for: self.captureLayer, on: self.overlayLayer)
+                observedBody.buildPoseForDisplay(for: self.captureLayer, on: self.overlayLayer)
             }
             return
         } catch {
@@ -160,13 +164,27 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
     }
 }
 
-extension ExerciseCamViewController: SkeletonDelegate {
-    func showBodyPoints(points: [CGPoint]) {
+extension ExerciseCamViewController: PoseDelegate {
+    func showBodyPoints(points: [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
         self.pointsPath.removeAllPoints()
-        for point in points {
+        print("===================================================")
+        print("time : \(Int64((Date().timeIntervalSince1970 * 1000.0).rounded()) - self.startingTime), detected points : \(points.count)")
+        print("===================================================")
+        for (_, point) in points {
+            guard let point = point else { continue }
+            print("x : \(point.x), y : \(point.y)")
             let path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: 10, height: 10))
             self.pointsPath.append(path)
         }
+        
+        for edge in edges {
+            guard let from = points[edge.from]!, let to = points[edge.to]! else { continue }
+            let path = UIBezierPath()
+            path.move(to: from)
+            path.addLine(to: to)
+            self.pointsPath.append(path)
+        }
+        
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         self.overlayLayer.path = pointsPath.cgPath

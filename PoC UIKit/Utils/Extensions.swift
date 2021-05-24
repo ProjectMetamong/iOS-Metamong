@@ -38,7 +38,10 @@ extension UINavigationController {
 }
 
 extension VNRecognizedPoint {
-    func toCGPoint() -> CGPoint {
-        return CGPoint(x: self.location.x, y: 1 - self.location.y)
+    func toCGPoint(threshold: Float) -> CGPoint? {
+        if self.confidence > threshold {
+            return CGPoint(x: self.location.x, y: 1 - self.location.y)
+        }
+        return nil
     }
 }
