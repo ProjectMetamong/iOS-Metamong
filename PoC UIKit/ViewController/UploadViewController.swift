@@ -38,6 +38,11 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         return button
     }()
     
+    lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
+        return gesture
+    }()
+    
     // MARK: - IBOutlets
     
     @IBOutlet weak var thumbnailImageView: UIImageView!
@@ -53,9 +58,14 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     }
     
     // MARK: - Helpers
+    
     func configureUI() {
+        self.navigationController?.isHeroEnabled = true
+        
         self.view.addSubview(detailTextView)
         self.view.addSubview(uploadButton)
+        
+        self.view.addGestureRecognizer(tapGesture)
         
         self.detailTextView.snp.makeConstraints {
             $0.top.equalTo(self.thumbnailImageView.snp.bottom).offset(15)
@@ -90,9 +100,13 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         self.dismiss(animated: true, completion: nil)
     }
     
-    
     // MARK: - Actions
+    
     @objc func imagePickerTapped(_ sender: Any) {
         self.present(self.imagePicker, animated: true, completion: nil)
+    }
+    
+    @objc func dismissKeyboard() {
+        self.view.endEditing(true)
     }
 }
