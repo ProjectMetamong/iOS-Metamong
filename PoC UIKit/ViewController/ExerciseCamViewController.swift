@@ -55,7 +55,7 @@ class ExerciseCamViewController: UIViewController {
         layer.videoGravity = .resizeAspectFill
         layer.session = self.captureSession
         self.captureSession.startRunning()
-        self.startingTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+        self.startingTime = Date().toMilliSeconds
         self.previousTime = startingTime
         return layer
     }()
@@ -183,7 +183,7 @@ class ExerciseCamViewController: UIViewController {
         CATransaction.commit()
         
         // debug 출력
-        let currentTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+        let currentTime = Date().toMilliSeconds
         let intervalTime = Int(currentTime - self.previousTime!)
         self.intervals.append(intervalTime)
         let averageInterval = intervals.reduce(0, +) / intervals.count

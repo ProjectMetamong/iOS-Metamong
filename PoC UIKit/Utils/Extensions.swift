@@ -45,3 +45,9 @@ extension VNRecognizedPoint {
         return nil
     }
 }
+
+extension Date {
+    var toMilliSeconds: Int64 {
+        Int64((self.timeIntervalSince1970 * 1000.0).rounded())
+    }
+}
