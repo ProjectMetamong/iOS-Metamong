@@ -28,13 +28,14 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         return textView
     }()
     
-    var uploadButton: UIButton = {
+    lazy var uploadButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = cornerRadius
         button.layer.masksToBounds = true
         button.backgroundColor = buttonColor
         button.setTitle("영상 선택 및 업로드", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        button.addTarget(self, action: #selector(self.handleUploadButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -108,5 +109,12 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     
     @objc func dismissKeyboard() {
         self.view.endEditing(true)
+    }
+    
+    @objc func handleUploadButtonTapped() {
+        let recordViewController = RecordViewController()
+        recordViewController.isHeroEnabled = true
+        self.navigationController?.hero.navigationAnimationType = .fade
+        self.navigationController?.pushViewController(recordViewController, animated: true)
     }
 }
