@@ -16,7 +16,8 @@ class ExerciseCamViewController: UIViewController {
     
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     
-    private var pointsPath = UIBezierPath()
+    private var userPoseEdgePaths = UIBezierPath()
+    private var userPosePointPaths = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     private var startingTime: Int64?
     
@@ -56,10 +57,25 @@ class ExerciseCamViewController: UIViewController {
     lazy var overlayLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.lineWidth = 5
+        layer.contentsGravity = .resizeAspectFill
+        layer.addSublayer(userPoseEdgeLayer)
+        layer.addSublayer(userPosePointLayer)
+        return layer
+    }()
+    
+    lazy var userPosePointLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.frame = view.bounds
         layer.fillColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
-        layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+        layer.contentsGravity = .resizeAspectFill
+        return layer
+    }()
+    
+    lazy var userPoseEdgeLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.frame = view.bounds
         layer.lineWidth = 3
+        layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
@@ -88,7 +104,7 @@ class ExerciseCamViewController: UIViewController {
     
     var scoreLabel: UILabel = {
         let label = UILabel()
-        label.text = "85점"
+        label.text = ""
         label.font = UIFont.italicSystemFont(ofSize: 60)
         label.textColor = .white
         return label
@@ -135,27 +151,29 @@ class ExerciseCamViewController: UIViewController {
         }
     }
     
-    func displayPoses(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
-        self.pointsPath.removeAllPoints()
-        
-        for (key, point) in points {
-            guard let point = point else { continue }
-            print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
-            let path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: 10, height: 10))
-            self.pointsPath.append(path)
-        }
+    func displayUserPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
+        self.userPoseEdgePaths.removeAllPoints()
+        self.userPosePointPaths.removeAllPoints()
         
         for edge in edges {
             guard let from = points[edge.from]!, let to = points[edge.to]! else { continue }
             let path = UIBezierPath()
             path.move(to: from)
             path.addLine(to: to)
-            self.pointsPath.append(path)
+            self.userPoseEdgePaths.append(path)
+        }
+        
+        for (key, point) in points {
+            guard let point = point else { continue }
+            print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
+            let path = UIBezierPath(ovalIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6))
+            self.userPosePointPaths.append(path)
         }
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        self.overlayLayer.path = pointsPath.cgPath
+        self.userPoseEdgeLayer.path = self.userPoseEdgePaths.cgPath
+        self.userPosePointLayer.path = self.userPosePointPaths.cgPath
         CATransaction.commit()
         
         print("===================================================")
@@ -182,7 +200,7 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
             }
             let observedBody = Pose(observed: observation)
             DispatchQueue.main.sync {
-                observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayPoses(points:edges:))
+                observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
             }
             return
         } catch {
