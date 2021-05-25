@@ -12,6 +12,12 @@ import Vision
 
 class ExerciseCamViewController: UIViewController {
     
+    // MARK: - Debug variables
+    
+    private var startingTime: Int64?
+    private var previousTime: Int64?
+    private var intervals: [Int] = []
+    
     // MARK: - Properties
     
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
@@ -19,7 +25,6 @@ class ExerciseCamViewController: UIViewController {
     private var userPoseEdgePaths = UIBezierPath()
     private var userPosePointPaths = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
-    private var startingTime: Int64?
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -51,6 +56,7 @@ class ExerciseCamViewController: UIViewController {
         layer.session = self.captureSession
         self.captureSession.startRunning()
         self.startingTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+        self.previousTime = startingTime
         return layer
     }()
     
@@ -176,9 +182,16 @@ class ExerciseCamViewController: UIViewController {
         self.userPosePointLayer.path = self.userPosePointPaths.cgPath
         CATransaction.commit()
         
-        print("===================================================")
-        print("time : \(Int64((Date().timeIntervalSince1970 * 1000.0).rounded()) - self.startingTime!), detected points : \(points.count)")
-        print("===================================================")
+        // debug 출력
+        let currentTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+        let intervalTime = Int(currentTime - self.previousTime!)
+        self.intervals.append(intervalTime)
+        let averageInterval = intervals.reduce(0, +) / intervals.count
+        previousTime = currentTime
+        print("=======================================================================================================")
+        print("time : \(currentTime - self.startingTime!), interval : \(intervalTime), average interval : \(averageInterval), total poses : \(intervals.count),  detected points : \(points.count)")
+        print("=======================================================================================================")
+        self.previousTime = currentTime
     }
     
     // MARK: - Actions
