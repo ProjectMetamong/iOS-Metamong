@@ -15,20 +15,29 @@ struct Edge {
 }
 
 struct Pose {
-    var points: [VNHumanBodyPoseObservation.JointName: CGPoint?] = [:]
+    var points: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
 
     init(observed body: VNHumanBodyPoseObservation) {
         for jointName in jointNames {
-            self.points[jointName] = try? body.recognizedPoint(jointName).toCGPoint(threshold: 0.3)
+            do {
+                self.points[jointName] = try body.recognizedPoint(jointName).toCGPoint(threshold: 0.3)
+            } catch {
+                continue
+            }
         }
     }
-
+    
+    init(from codablePose: CodablePose) {
+        for (jointNameRawValue, point) in codablePose.points {
+            self.points[VNHumanBodyPoseObservation.JointName.init(rawValue: VNRecognizedPointKey(rawValue: jointNameRawValue))] = point
+        }
+    }
+    
     func buildPoseAndDisplay(for captureLayer: AVCaptureVideoPreviewLayer, on overlayLayer: CAShapeLayer, completion displayPose: (([VNHumanBodyPoseObservation.JointName : CGPoint?], [Edge]) -> Void)) {
         var pointsForDisplay: [VNHumanBodyPoseObservation.JointName: CGPoint?] = [:]
         var edgesForDisplay: [Edge] = []
         
         for (key, point) in self.points {
-            guard let point = point else { continue }
             let actualPoint = captureLayer.layerPointConverted(fromCaptureDevicePoint: point)
             pointsForDisplay[key] = actualPoint
         }
@@ -39,5 +48,16 @@ struct Pose {
         }
 
         displayPose(pointsForDisplay, edgesForDisplay)
+    }
+}
+
+struct CodablePose: Codable {
+    var points: [String: CGPoint] = [:]
+    
+    init(from pose: Pose) {
+        for joint in jointNames {
+            let point = pose.points[joint]
+            points[joint.rawValue.rawValue] = point
+        }
     }
 }

@@ -12,19 +12,16 @@ import Vision
 
 class RecordViewController: UIViewController {
     
-    // MARK: - Debug variables
-    
-    private var startingTime: Int64?
-    private var previousTime: Int64?
-    private var intervals: [Int] = []
-    
     // MARK: - Properties
     
+    private let viewModel: RecordViewModel = RecordViewModel()
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     
     private var userPoseEdgePaths = UIBezierPath()
     private var userPosePointPaths = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
+    
+    private var startingTime: Int64?
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -55,8 +52,7 @@ class RecordViewController: UIViewController {
         layer.videoGravity = .resizeAspectFill
         layer.session = self.captureSession
         self.captureSession.startRunning()
-        self.startingTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
-        self.previousTime = startingTime
+        self.startingTime = Date().toMilliSeconds
         return layer
     }()
     
@@ -156,22 +152,23 @@ class RecordViewController: UIViewController {
         self.userPoseEdgeLayer.path = self.userPoseEdgePaths.cgPath
         self.userPosePointLayer.path = self.userPosePointPaths.cgPath
         CATransaction.commit()
-        
-        // debug 출력
-        let currentTime = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
-        let intervalTime = Int(currentTime - self.previousTime!)
-        self.intervals.append(intervalTime)
-        let averageInterval = intervals.reduce(0, +) / intervals.count
-        previousTime = currentTime
-        print("=======================================================================================================")
-        print("time : \(currentTime - self.startingTime!), interval : \(intervalTime), average interval : \(averageInterval), total poses : \(intervals.count),  detected points : \(points.count)")
-        print("=======================================================================================================")
-        self.previousTime = currentTime
     }
     
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
+        let encoder = JSONEncoder()
+        if let jsonData = try? encoder.encode(self.viewModel.poses) {
+            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let fileUrl = documentDirectoryUrl.appendingPathComponent("test.json")
+            
+            do {
+                try jsonData.write(to: fileUrl, options: [])
+            } catch {
+                print(error)
+            }
+        }
+
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
 }
@@ -188,6 +185,8 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
             let observedBody = Pose(observed: observation)
             DispatchQueue.main.sync {
+                let time = Int(Date().toMilliSeconds - self.startingTime!)
+                self.viewModel.poses[time] = CodablePose(from: observedBody)
                 observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
             }
             return
