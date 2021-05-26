@@ -11,6 +11,7 @@
 		1D2643AC265BB16100B70A27 /* Pose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643AB265BB16100B70A27 /* Pose.swift */; };
 		1D2643AE265D4A8700B70A27 /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643AD265D4A8700B70A27 /* RecordViewController.swift */; };
 		1D2643B0265D545100B70A27 /* RecordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643AF265D545100B70A27 /* RecordViewModel.swift */; };
+		1D2643B5265E04B600B70A27 /* ExerciseCamViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2643B4265E04B600B70A27 /* ExerciseCamViewModel.swift */; };
 		1D5573702657E5FD00CBD418 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D55736F2657E5FD00CBD418 /* Exercise.swift */; };
 		1D5573732657E76400CBD418 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573722657E76400CBD418 /* SearchViewModel.swift */; };
 		1D5573752657ED2800CBD418 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573742657ED2800CBD418 /* Extensions.swift */; };
@@ -36,6 +37,7 @@
 		1D2643AB265BB16100B70A27 /* Pose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pose.swift; sourceTree = "<group>"; };
 		1D2643AD265D4A8700B70A27 /* RecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
 		1D2643AF265D545100B70A27 /* RecordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewModel.swift; sourceTree = "<group>"; };
+		1D2643B4265E04B600B70A27 /* ExerciseCamViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCamViewModel.swift; sourceTree = "<group>"; };
 		1D55736F2657E5FD00CBD418 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		1D5573722657E76400CBD418 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		1D5573742657ED2800CBD418 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 				1D5573722657E76400CBD418 /* SearchViewModel.swift */,
 				1D5573762657EEC100CBD418 /* DetailViewModel.swift */,
 				1D2643AF265D545100B70A27 /* RecordViewModel.swift */,
+				1D2643B4265E04B600B70A27 /* ExerciseCamViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D9543072641321B00D955C6 /* SearchViewController.swift in Sources */,
+				1D2643B5265E04B600B70A27 /* ExerciseCamViewModel.swift in Sources */,
 				1D5573702657E5FD00CBD418 /* Exercise.swift in Sources */,
 				1DD93A612641511200FED9B5 /* ExerciseCollectionViewCell.swift in Sources */,
 				1D95431826413A5200D955C6 /* UploadViewController.swift in Sources */,

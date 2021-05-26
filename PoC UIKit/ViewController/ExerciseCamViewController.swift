@@ -13,18 +13,24 @@ import Vision
 class ExerciseCamViewController: UIViewController {
     
     // MARK: - Debug variables
-    
-    private var startingTime: Int64?
+
     private var previousTime: Int64?
     private var intervals: [Int] = []
     
     // MARK: - Properties
     
+    private let viewModel: ExerciseCamViewModel = ExerciseCamViewModel()
+    
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     
     private var userPoseEdgePaths = UIBezierPath()
     private var userPosePointPaths = UIBezierPath()
+    private var referencePoseEdgePaths = UIBezierPath()
+    private var referencePosePointPaths = UIBezierPath()
+    
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
+    
+    private var startingTime: Int64?
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -64,6 +70,8 @@ class ExerciseCamViewController: UIViewController {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
         layer.contentsGravity = .resizeAspectFill
+        layer.addSublayer(referencePoseEdgeLayer)
+        layer.addSublayer(referencePosePointLayer)
         layer.addSublayer(userPoseEdgeLayer)
         layer.addSublayer(userPosePointLayer)
         return layer
@@ -82,6 +90,29 @@ class ExerciseCamViewController: UIViewController {
         layer.frame = view.bounds
         layer.lineWidth = 3
         layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+        layer.lineCap = .round
+        layer.contentsGravity = .resizeAspectFill
+        return layer
+    }()
+    
+    lazy var referencePosePointLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.frame = view.bounds
+        layer.fillColor = #colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)
+        layer.contentsGravity = .resizeAspectFill
+        return layer
+    }()
+    
+    lazy var referenceDisplayTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayReference), userInfo: nil, repeats: true)
+        return timer
+    }()
+    
+    lazy var referencePoseEdgeLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.frame = view.bounds
+        layer.lineWidth = 3
+        layer.strokeColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
@@ -194,10 +225,44 @@ class ExerciseCamViewController: UIViewController {
         self.previousTime = currentTime
     }
     
+    func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
+        self.referencePoseEdgePaths.removeAllPoints()
+        self.referencePosePointPaths.removeAllPoints()
+        
+        for edge in edges {
+            guard let from = points[edge.from]!, let to = points[edge.to]! else { continue }
+            let path = UIBezierPath()
+            path.move(to: from)
+            path.addLine(to: to)
+            self.referencePoseEdgePaths.append(path)
+        }
+        
+        for (key, point) in points {
+            guard let point = point else { continue }
+            print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
+            let path = UIBezierPath(ovalIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6))
+            self.referencePosePointPaths.append(path)
+        }
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.referencePoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
+        self.referencePosePointLayer.path = self.referencePosePointPaths.cgPath
+        CATransaction.commit()
+    }
+    
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
         self.navigationController?.popToViewController(ofClass: DetailViewController.self)
+    }
+    
+    @objc func displayReference() {
+        let time = Int(Date().toMilliSeconds - self.startingTime!)
+        if let codablePose = self.viewModel.poses[time] {
+            let recordedBody = Pose(from: codablePose)
+            recordedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        }
     }
 }
 
