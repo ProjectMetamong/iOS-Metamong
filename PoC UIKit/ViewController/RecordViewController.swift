@@ -69,7 +69,9 @@ class RecordViewController: UIViewController {
     lazy var userPosePointLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.fillColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
+        layer.lineWidth = posePointWidth
+        layer.strokeColor = userPoseStrokeColor
+        layer.fillColor = userPosePointColor
         layer.contentsGravity = .resizeAspectFill
         return layer
     }()
@@ -77,8 +79,8 @@ class RecordViewController: UIViewController {
     lazy var userPoseEdgeLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.lineWidth = 3
-        layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+        layer.lineWidth = poseEdgeWidth
+        layer.strokeColor = userPoseStrokeColor
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
@@ -183,7 +185,7 @@ class RecordViewController: UIViewController {
         for (key, point) in points {
             guard let point = point else { continue }
             print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
-            let path = UIBezierPath(ovalIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6))
+            let path = UIBezierPath(center: point, radius: posePointRadius)
             self.userPosePointPaths.append(path)
         }
         

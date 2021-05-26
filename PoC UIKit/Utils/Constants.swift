@@ -52,3 +52,12 @@ let edges = [Edge(from: .nose, to: .leftEye),
              Edge(from: .rightShoulder, to: .rightHip),
              Edge(from: .rightHip, to: .rightKnee),
              Edge(from: .rightKnee, to: .rightAnkle)]
+
+let posePointRadius: CGFloat = 5
+let posePointWidth: CGFloat = 3
+let poseEdgeWidth: CGFloat = 5
+
+let userPoseStrokeColor: CGColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+let userPosePointColor: CGColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
+let referencePoseStrokeColor: CGColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 1)
+let referencePosePointColor: CGColor = #colorLiteral(red: 1, green: 0.5781051517, blue: 0, alpha: 1)

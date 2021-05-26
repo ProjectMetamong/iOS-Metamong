@@ -107,7 +107,9 @@ class ExerciseCamViewController: UIViewController {
     lazy var userPosePointLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.fillColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
+        layer.lineWidth = posePointWidth
+        layer.strokeColor = userPoseStrokeColor
+        layer.fillColor = userPosePointColor
         layer.contentsGravity = .resizeAspectFill
         return layer
     }()
@@ -115,8 +117,8 @@ class ExerciseCamViewController: UIViewController {
     lazy var userPoseEdgeLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.lineWidth = 3
-        layer.strokeColor = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
+        layer.lineWidth = poseEdgeWidth
+        layer.strokeColor = userPoseStrokeColor
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
@@ -125,7 +127,19 @@ class ExerciseCamViewController: UIViewController {
     lazy var referencePosePointLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.frame = view.bounds
-        layer.fillColor = #colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1)
+        layer.lineWidth = posePointWidth
+        layer.strokeColor = referencePoseStrokeColor
+        layer.fillColor = referencePosePointColor
+        layer.contentsGravity = .resizeAspectFill
+        return layer
+    }()
+    
+    lazy var referencePoseEdgeLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.frame = view.bounds
+        layer.lineWidth = poseEdgeWidth
+        layer.strokeColor = referencePoseStrokeColor
+        layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
     }()
@@ -133,16 +147,6 @@ class ExerciseCamViewController: UIViewController {
     lazy var referenceDisplayTimer: Timer = {
         let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayReference), userInfo: nil, repeats: true)
         return timer
-    }()
-    
-    lazy var referencePoseEdgeLayer: CAShapeLayer = {
-        let layer = CAShapeLayer()
-        layer.frame = view.bounds
-        layer.lineWidth = 3
-        layer.strokeColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
-        layer.lineCap = .round
-        layer.contentsGravity = .resizeAspectFill
-        return layer
     }()
     
     lazy var stopButton: UIButton = {
@@ -253,7 +257,7 @@ class ExerciseCamViewController: UIViewController {
         for (key, point) in points {
             guard let point = point else { continue }
             print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
-            let path = UIBezierPath(ovalIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6))
+            let path = UIBezierPath(center: point, radius: posePointRadius)
             self.userPosePointPaths.append(path)
         }
         
@@ -296,7 +300,7 @@ class ExerciseCamViewController: UIViewController {
         for (key, point) in points {
             guard let point = point else { continue }
             print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
-            let path = UIBezierPath(ovalIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6))
+            let path = UIBezierPath(center: point, radius: posePointRadius)
             self.referencePosePointPaths.append(path)
         }
         

@@ -51,3 +51,9 @@ extension Date {
         Int64((self.timeIntervalSince1970 * 1000.0).rounded())
     }
 }
+
+extension UIBezierPath {
+    convenience init(center: CGPoint, radius: CGFloat) {
+        self.init(ovalIn: CGRect(x: center.x - radius, y: center.y - radius, width: 2 * radius, height: 2 * radius))
+    }
+}
