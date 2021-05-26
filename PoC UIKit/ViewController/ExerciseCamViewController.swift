@@ -153,11 +153,16 @@ class ExerciseCamViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
+        self.referenceDisplayTimer.fire()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.referenceDisplayTimer.invalidate()
     }
     
     // MARK: - Helpers
