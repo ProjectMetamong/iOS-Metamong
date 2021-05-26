@@ -22,6 +22,8 @@ class RecordViewController: UIViewController {
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     
     private var startingTime: Int64?
+    private var remainingReadyTime: Int = 6
+    private var isRecording: Bool = false
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -52,7 +54,6 @@ class RecordViewController: UIViewController {
         layer.videoGravity = .resizeAspectFill
         layer.session = self.captureSession
         self.captureSession.startRunning()
-        self.startingTime = Date().toMilliSeconds
         return layer
     }()
     
@@ -81,6 +82,27 @@ class RecordViewController: UIViewController {
         layer.lineCap = .round
         layer.contentsGravity = .resizeAspectFill
         return layer
+    }()
+    
+    lazy var countDownLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
+        label.textColor = .white
+        label.text = "5"
+        return label
+    }()
+    
+    lazy var countDownBackgroundView: UIView = {
+        let view = UIView(frame: CGRect())
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 100
+        view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
+        return view
+    }()
+    
+    lazy var countDownTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
+        return timer
     }()
     
     lazy var stopButton: UIButton = {
@@ -119,6 +141,10 @@ class RecordViewController: UIViewController {
         self.view.layer.addSublayer(captureLayer)
         self.view.layer.addSublayer(overlayLayer)
         self.view.addSubview(self.stopButton)
+        self.view.addSubview(self.countDownLabel)
+        self.view.addSubview(self.countDownBackgroundView)
+        
+        self.view.bringSubviewToFront(self.countDownLabel)
         
         self.stopButton.snp.makeConstraints {
             $0.left.equalTo(self.view.snp.left).offset(15)
@@ -126,6 +152,20 @@ class RecordViewController: UIViewController {
             $0.bottom.equalTo(self.view.snp.bottom).offset(-30)
             $0.height.equalTo(50)
         }
+        
+        self.countDownLabel.snp.makeConstraints {
+            $0.centerY.equalTo(self.view.snp.centerY)
+            $0.centerX.equalTo(self.view.snp.centerX)
+        }
+        
+        self.countDownBackgroundView.snp.makeConstraints {
+            $0.centerY.equalTo(self.countDownLabel.snp.centerY)
+            $0.centerX.equalTo(self.countDownLabel.snp.centerX)
+            $0.width.equalTo(200)
+            $0.height.equalTo(200)
+        }
+        
+        self.countDownTimer.fire()
     }
     
     func displayUserPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
@@ -157,8 +197,21 @@ class RecordViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        self.viewModel.encodePoses()
+        self.viewModel.poseSequence.encodeAndSave(as: "test")
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
+    }
+    
+    @objc func countDown() {
+        if self.remainingReadyTime > 0 {
+            self.remainingReadyTime -= 1
+            self.countDownLabel.text = "\(self.remainingReadyTime)"
+        } else if self.remainingReadyTime == 0 {
+            self.countDownBackgroundView.isHidden = true
+            self.countDownLabel.isHidden = true
+            self.startingTime = Date().toMilliSeconds
+            self.isRecording = true
+            self.countDownTimer.invalidate()
+        }
     }
 }
 
@@ -174,8 +227,14 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
             let observedBody = Pose(observed: observation)
             DispatchQueue.main.sync {
-                let time = Int(Date().toMilliSeconds - self.startingTime!)
-                self.viewModel.poses[time] = CodablePose(from: observedBody)
+                if self.isRecording {
+                    let time = Int(Date().toMilliSeconds - self.startingTime!)
+                    print(time)
+                    if self.viewModel.poseSequence.initialPoseTime == -1 {
+                        self.viewModel.poseSequence.initialPoseTime = time
+                    }
+                    self.viewModel.poseSequence.poses[time] = CodablePose(from: observedBody)
+                }
                 observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
             }
             return

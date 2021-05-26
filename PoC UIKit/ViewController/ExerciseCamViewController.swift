@@ -31,6 +31,12 @@ class ExerciseCamViewController: UIViewController {
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     
     private var startingTime: Int64?
+    private var remainingReadyTime: Int = 6
+    private var isPlaying: Bool = false {
+        didSet {
+            self.referenceDisplayTimer.fire()
+        }
+    }
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -53,6 +59,27 @@ class ExerciseCamViewController: UIViewController {
         session.commitConfiguration()
         
         return session
+    }()
+    
+    lazy var countDownLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
+        label.textColor = .white
+        label.text = "5"
+        return label
+    }()
+    
+    lazy var countDownBackgroundView: UIView = {
+        let view = UIView(frame: CGRect())
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 100
+        view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
+        return view
+    }()
+    
+    lazy var countDownTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
+        return timer
     }()
     
     lazy var captureLayer: AVCaptureVideoPreviewLayer = {
@@ -153,7 +180,6 @@ class ExerciseCamViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
-        self.referenceDisplayTimer.fire()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -173,6 +199,10 @@ class ExerciseCamViewController: UIViewController {
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.progressBar)
         self.view.addSubview(self.scoreLabel)
+        self.view.addSubview(self.countDownLabel)
+        self.view.addSubview(self.countDownBackgroundView)
+        
+        self.view.bringSubviewToFront(self.countDownLabel)
         
         self.stopButton.snp.makeConstraints {
             $0.right.equalTo(self.view.snp.right).offset(-15)
@@ -191,6 +221,21 @@ class ExerciseCamViewController: UIViewController {
             $0.bottom.equalTo(self.stopButton.snp.top).offset(-15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
         }
+        
+        self.countDownLabel.snp.makeConstraints {
+            $0.centerY.equalTo(self.view.snp.centerY)
+            $0.centerX.equalTo(self.view.snp.centerX)
+        }
+        
+        self.countDownBackgroundView.snp.makeConstraints {
+            $0.centerY.equalTo(self.countDownLabel.snp.centerY)
+            $0.centerX.equalTo(self.countDownLabel.snp.centerX)
+            $0.width.equalTo(200)
+            $0.height.equalTo(200)
+        }
+        
+        self.countDownTimer.fire()
+        self.displayInitialReferencePose()
     }
     
     func displayUserPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
@@ -230,6 +275,12 @@ class ExerciseCamViewController: UIViewController {
         self.previousTime = currentTime
     }
     
+    func displayInitialReferencePose() {
+        guard let codablePose = self.viewModel.poseSequence.poses[self.viewModel.poseSequence.initialPoseTime] else { return }
+        let initialBody = Pose(from: codablePose)
+        initialBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+    }
+    
     func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
         self.referencePoseEdgePaths.removeAllPoints()
         self.referencePosePointPaths.removeAllPoints()
@@ -264,9 +315,22 @@ class ExerciseCamViewController: UIViewController {
     
     @objc func displayReference() {
         let time = Int(Date().toMilliSeconds - self.startingTime!)
-        if let codablePose = self.viewModel.poses[time] {
+        if let codablePose = self.viewModel.poseSequence.poses[time] {
             let recordedBody = Pose(from: codablePose)
             recordedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        }
+    }
+    
+    @objc func countDown() {
+        if self.remainingReadyTime > 0 {
+            self.remainingReadyTime -= 1
+            self.countDownLabel.text = "\(self.remainingReadyTime)"
+        } else if self.remainingReadyTime == 0 {
+            self.countDownBackgroundView.isHidden = true
+            self.countDownLabel.isHidden = true
+            self.startingTime = Date().toMilliSeconds
+            self.isPlaying = true
+            self.countDownTimer.invalidate()
         }
     }
 }
@@ -278,9 +342,7 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
         let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
         do {
             try handler.perform([bodyPoseRequest])
-            guard let observation = bodyPoseRequest.results?.first else {
-                return
-            }
+            guard let observation = bodyPoseRequest.results?.first else { return }
             let observedBody = Pose(observed: observation)
             DispatchQueue.main.sync {
                 observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))

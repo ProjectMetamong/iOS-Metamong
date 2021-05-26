@@ -61,3 +61,46 @@ struct CodablePose: Codable {
         }
     }
 }
+
+struct PoseSequence: Codable {
+    var initialPoseTime: Int
+    var poses: [Int: CodablePose]
+    
+    init() {
+        self.initialPoseTime = -1
+        self.poses = [:]
+    }
+    
+    init(from name: String) {
+        self.initialPoseTime = -1
+        self.poses = [:]
+        
+        guard let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let fileUrl = documentsDirectoryUrl.appendingPathComponent("\(name).json")
+
+        do {
+            let data = try Data(contentsOf: fileUrl, options: [])
+            let decoder = JSONDecoder()
+            let jsonData = try? decoder.decode(PoseSequence.self, from: data)
+            guard let decoded = jsonData else { return }
+            self.initialPoseTime = decoded.initialPoseTime
+            self.poses = decoded.poses
+        } catch {
+            print(error)
+        }
+    }
+    
+    func encodeAndSave(as name: String) {
+        let encoder = JSONEncoder()
+        if let jsonData = try? encoder.encode(self) {
+            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let fileUrl = documentDirectoryUrl.appendingPathComponent("\(name).json")
+            
+            do {
+                try jsonData.write(to: fileUrl, options: [])
+            } catch {
+                print(error)
+            }
+        }
+    }
+}
