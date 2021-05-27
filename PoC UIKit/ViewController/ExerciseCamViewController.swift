@@ -198,8 +198,8 @@ class ExerciseCamViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
-        self.view.layer.addSublayer(captureLayer)
-        self.view.layer.addSublayer(overlayLayer)
+        self.view.layer.addSublayer(self.captureLayer)
+        self.view.layer.addSublayer(self.overlayLayer)
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.progressBar)
         self.view.addSubview(self.scoreLabel)

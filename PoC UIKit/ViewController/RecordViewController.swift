@@ -15,7 +15,8 @@ class RecordViewController: UIViewController {
     // MARK: - Properties
     
     private let viewModel: RecordViewModel = RecordViewModel()
-    private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
+    private let videoDataOutputQueue = DispatchQueue(label: "CameraDataOutput", qos: .userInteractive)
+    private let audioDataOutputQueue = DispatchQueue(label: "AudioDataOutput", qos: .userInteractive)
     
     private var userPoseEdgePaths = UIBezierPath()
     private var userPosePointPaths = UIBezierPath()
@@ -25,24 +26,51 @@ class RecordViewController: UIViewController {
     private var remainingReadyTime: Int = 6
     private var isRecording: Bool = false
     
+    var videoWidth = 0
+    var videoHeight = 0
+    
+    private var videoWriter: VideoWriter? = nil
+    fileprivate var recordingTime:Int64 = 0
+    
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
+        
+        self.videoWidth = Int(self.view.frame.height)
+        self.videoHeight = Int(self.view.frame.width)
     
         session.beginConfiguration()
         session.sessionPreset = AVCaptureSession.Preset.high
         
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else { return session }
-        guard let deviceInput = try? AVCaptureDeviceInput(device: videoDevice) else { return session }
-        guard session.canAddInput(deviceInput) else { return session }
-        session.addInput(deviceInput)
+        guard let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else { return session }
+        guard session.canAddInput(videoInput) else { return session }
+        session.addInput(videoInput)
         
-        let dataOutput = AVCaptureVideoDataOutput()
-        guard session.canAddOutput(dataOutput) else { return session }
-        session.addOutput(dataOutput)
-        dataOutput.alwaysDiscardsLateVideoFrames = true
-        dataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
-        dataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
-    
+        let dimension = CMVideoFormatDescriptionGetDimensions(videoDevice.activeFormat.formatDescription)
+        self.videoWidth = Int(dimension.width)
+        self.videoHeight = Int(dimension.height)
+        
+        guard let audioDevice = AVCaptureDevice.default(for: AVMediaType.audio) else { return session }
+        guard let audioInput = try? AVCaptureDeviceInput(device: audioDevice) else { return session }
+        guard session.canAddInput(audioInput) else { return session }
+        session.addInput(audioInput)
+        
+        let videoDataOutput = AVCaptureVideoDataOutput()
+        videoDataOutput.connection(with: AVMediaType.video)?.videoOrientation = .portrait
+        videoDataOutput.connection(with: AVMediaType.video)?.isVideoMirrored = true
+        
+        guard session.canAddOutput(videoDataOutput) else { return session }
+        session.addOutput(videoDataOutput)
+        
+        let audioDataOutput = AVCaptureAudioDataOutput()
+        guard session.canAddOutput(audioDataOutput) else { return session }
+        session.addOutput(audioDataOutput)
+        
+        videoDataOutput.alwaysDiscardsLateVideoFrames = true
+        videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
+        videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
+        audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
+        
         session.commitConfiguration()
         
         return session
@@ -199,6 +227,8 @@ class RecordViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
+        self.captureSession.stopRunning()
+        self.videoWriter?.stop()
         self.viewModel.poseSequence.encodeAndSave(as: "test")
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
@@ -217,32 +247,60 @@ class RecordViewController: UIViewController {
     }
 }
 
-// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
 
-extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        
         let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
         do {
             try handler.perform([bodyPoseRequest])
-            guard let observation = bodyPoseRequest.results?.first else {
-                return
-            }
-            let observedBody = Pose(observed: observation)
-            DispatchQueue.main.sync {
-                if self.isRecording {
-                    let time = Int(Date().toMilliSeconds - self.startingTime!)
-                    print(time)
-                    if self.viewModel.poseSequence.initialPoseTime == -1 {
-                        self.viewModel.poseSequence.initialPoseTime = time
+            if let observation = bodyPoseRequest.results?.first {
+                let observedBody = Pose(observed: observation)
+                DispatchQueue.main.sync {
+                    if self.isRecording {
+                        let time = Int(Date().toMilliSeconds - self.startingTime!)
+                        print(time)
+                        if self.viewModel.poseSequence.initialPoseTime == -1 {
+                            self.viewModel.poseSequence.initialPoseTime = time
+                        }
+                        self.viewModel.poseSequence.poses[time] = CodablePose(from: observedBody)
                     }
-                    self.viewModel.poseSequence.poses[time] = CodablePose(from: observedBody)
+                    observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
                 }
-                observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
             }
-            return
         } catch {
-            captureSession.stopRunning()
-            return
+            print("Pose not detected!")
         }
+        
+        if isRecording {
+            let isVideo = output is AVCaptureVideoDataOutput
+            if self.videoWriter == nil {
+                if !isVideo {
+                    if let fmt = CMSampleBufferGetFormatDescription(sampleBuffer) {
+                        if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(fmt) {
+                            let channels = Int(asbd.pointee.mChannelsPerFrame)
+                            let samples = asbd.pointee.mSampleRate
+                            self.videoWriter = VideoWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, recordingTime: recordingTime)
+                            self.videoWriter?.delegate = self
+                        }
+                    }
+                }
+            }
+
+            if videoWriter != nil {
+                videoWriter?.write(sampleBuffer: sampleBuffer, isVideo: isVideo)
+            }
+        }
+    }
+}
+
+extension RecordViewController : VideoWriterDelegate {
+    func changeRecordingTime(s: Int64) {
+        print("changeRecordingTime called")
+    }
+    
+    func finishRecording(fileUrl: URL) {
+        print("finishRecording called")
     }
 }
