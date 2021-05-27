@@ -15,28 +15,28 @@ class RecordViewController: UIViewController {
     // MARK: - Properties
     
     private let viewModel: RecordViewModel = RecordViewModel()
+    
+    // Capture Session DataOutputQueues
     private let videoDataOutputQueue = DispatchQueue(label: "CameraDataOutput", qos: .userInteractive)
     private let audioDataOutputQueue = DispatchQueue(label: "AudioDataOutput", qos: .userInteractive)
     
+    // User Pose Related
     private var userPoseEdgePaths = UIBezierPath()
     private var userPosePointPaths = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
     
-    private var startingTime: Int64?
+    // Recording Time Related
+    private var recordingStartTime: Int64 = Date().toMilliSeconds
     private var remainingReadyTime: Int = 6
     private var isRecording: Bool = false
     
-    var videoWidth = 0
-    var videoHeight = 0
-    
-    private var videoWriter: VideoWriter? = nil
-    fileprivate var recordingTime:Int64 = 0
+    // Video/Audio File Related
+    private var videoWidth = 0
+    private var videoHeight = 0
+    private var audioVideoWriter: AVWriter? = nil
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
-        
-        self.videoWidth = Int(self.view.frame.height)
-        self.videoHeight = Int(self.view.frame.width)
     
         session.beginConfiguration()
         session.sessionPreset = AVCaptureSession.Preset.high
@@ -114,27 +114,6 @@ class RecordViewController: UIViewController {
         return layer
     }()
     
-    lazy var countDownLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
-        label.textColor = .white
-        label.text = "5"
-        return label
-    }()
-    
-    lazy var countDownBackgroundView: UIView = {
-        let view = UIView(frame: CGRect())
-        view.clipsToBounds = true
-        view.layer.cornerRadius = 100
-        view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
-        return view
-    }()
-    
-    lazy var countDownTimer: Timer = {
-        let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
-        return timer
-    }()
-    
     lazy var stopButton: UIButton = {
         let button = UIButton()
         button.clipsToBounds = true
@@ -146,21 +125,50 @@ class RecordViewController: UIViewController {
         return button
     }()
     
+    lazy var standbyLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
+        label.textColor = .white
+        label.text = "5"
+        return label
+    }()
+    
+    lazy var standbyBackground: UIView = {
+        let view = UIView(frame: CGRect())
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 100
+        view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
+        return view
+    }()
+    
+    lazy var standbyTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
+        return timer
+    }()
+    
     // MARK: - Lifecycles
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.configureUI()
+        self.standbyTimer.fire()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        self.captureSession.stopRunning()
+        self.audioVideoWriter?.stop()
+        self.viewModel.poseSequence.encodeAndSave(as: "test")
+        
         self.tabBarController?.tabBar.isHidden = false
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
@@ -171,10 +179,10 @@ class RecordViewController: UIViewController {
         self.view.layer.addSublayer(captureLayer)
         self.view.layer.addSublayer(overlayLayer)
         self.view.addSubview(self.stopButton)
-        self.view.addSubview(self.countDownLabel)
-        self.view.addSubview(self.countDownBackgroundView)
+        self.view.addSubview(self.standbyLabel)
+        self.view.addSubview(self.standbyBackground)
         
-        self.view.bringSubviewToFront(self.countDownLabel)
+        self.view.bringSubviewToFront(self.standbyLabel)
         
         self.stopButton.snp.makeConstraints {
             $0.left.equalTo(self.view.snp.left).offset(15)
@@ -183,25 +191,25 @@ class RecordViewController: UIViewController {
             $0.height.equalTo(50)
         }
         
-        self.countDownLabel.snp.makeConstraints {
+        self.standbyLabel.snp.makeConstraints {
             $0.centerY.equalTo(self.view.snp.centerY)
             $0.centerX.equalTo(self.view.snp.centerX)
         }
         
-        self.countDownBackgroundView.snp.makeConstraints {
-            $0.centerY.equalTo(self.countDownLabel.snp.centerY)
-            $0.centerX.equalTo(self.countDownLabel.snp.centerX)
+        self.standbyBackground.snp.makeConstraints {
+            $0.centerY.equalTo(self.standbyLabel.snp.centerY)
+            $0.centerX.equalTo(self.standbyLabel.snp.centerX)
             $0.width.equalTo(200)
             $0.height.equalTo(200)
         }
-        
-        self.countDownTimer.fire()
     }
     
     func displayUserPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
+        // Removes old points and edges
         self.userPoseEdgePaths.removeAllPoints()
         self.userPosePointPaths.removeAllPoints()
         
+        // Add new edges
         for edge in edges {
             guard let from = points[edge.from]!, let to = points[edge.to]! else { continue }
             let path = UIBezierPath()
@@ -210,13 +218,14 @@ class RecordViewController: UIViewController {
             self.userPoseEdgePaths.append(path)
         }
         
-        for (key, point) in points {
+        // Add new points
+        for (_, point) in points {
             guard let point = point else { continue }
-            print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
             let path = UIBezierPath(center: point, radius: posePointRadius)
             self.userPosePointPaths.append(path)
         }
         
+        // Commit new edges and points
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         self.userPoseEdgeLayer.path = self.userPoseEdgePaths.cgPath
@@ -227,22 +236,19 @@ class RecordViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        self.captureSession.stopRunning()
-        self.videoWriter?.stop()
-        self.viewModel.poseSequence.encodeAndSave(as: "test")
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
     
     @objc func countDown() {
         if self.remainingReadyTime > 0 {
             self.remainingReadyTime -= 1
-            self.countDownLabel.text = "\(self.remainingReadyTime)"
+            self.standbyLabel.text = "\(self.remainingReadyTime)"
         } else if self.remainingReadyTime == 0 {
-            self.countDownBackgroundView.isHidden = true
-            self.countDownLabel.isHidden = true
-            self.startingTime = Date().toMilliSeconds
+            self.standbyBackground.isHidden = true
+            self.standbyLabel.isHidden = true
+            self.recordingStartTime = Date().toMilliSeconds
             self.isRecording = true
-            self.countDownTimer.invalidate()
+            self.standbyTimer.invalidate()
         }
     }
 }
@@ -252,55 +258,38 @@ class RecordViewController: UIViewController {
 extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
-        do {
-            try handler.perform([bodyPoseRequest])
-            if let observation = bodyPoseRequest.results?.first {
-                let observedBody = Pose(observed: observation)
-                DispatchQueue.main.sync {
-                    if self.isRecording {
-                        let time = Int(Date().toMilliSeconds - self.startingTime!)
-                        print(time)
-                        if self.viewModel.poseSequence.initialPoseTime == -1 {
-                            self.viewModel.poseSequence.initialPoseTime = time
-                        }
-                        self.viewModel.poseSequence.poses[time] = CodablePose(from: observedBody)
-                    }
-                    observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
-                }
+        // Video/Audio recording
+        if isRecording {
+            let isVideoData = output is AVCaptureVideoDataOutput
+            if self.audioVideoWriter == nil && !isVideoData{
+                guard let fmt = CMSampleBufferGetFormatDescription(sampleBuffer) else { return }
+                guard let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(fmt) else { return }
+                let channels = Int(asbd.pointee.mChannelsPerFrame)
+                let samples = asbd.pointee.mSampleRate
+                self.audioVideoWriter = AVWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, saveAs: "test")
             }
-        } catch {
-            print("Pose not detected!")
+            audioVideoWriter?.write(sampleBuffer: sampleBuffer, isVideoData: isVideoData)
         }
         
-        if isRecording {
-            let isVideo = output is AVCaptureVideoDataOutput
-            if self.videoWriter == nil {
-                if !isVideo {
-                    if let fmt = CMSampleBufferGetFormatDescription(sampleBuffer) {
-                        if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(fmt) {
-                            let channels = Int(asbd.pointee.mChannelsPerFrame)
-                            let samples = asbd.pointee.mSampleRate
-                            self.videoWriter = VideoWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, recordingTime: recordingTime)
-                            self.videoWriter?.delegate = self
-                        }
-                    }
-                }
-            }
-
-            if videoWriter != nil {
-                videoWriter?.write(sampleBuffer: sampleBuffer, isVideo: isVideo)
-            }
+        // User body pose estimation
+        let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
+        try? handler.perform([bodyPoseRequest])
+        
+        guard let observation = bodyPoseRequest.results?.first else { return }
+        let observedBody = Pose(observed: observation)
+        
+        // Display user body pose
+        DispatchQueue.main.sync {
+            observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
         }
-    }
-}
-
-extension RecordViewController : VideoWriterDelegate {
-    func changeRecordingTime(s: Int64) {
-        print("changeRecordingTime called")
-    }
     
-    func finishRecording(fileUrl: URL) {
-        print("finishRecording called")
+        // User body pose recording
+        if self.isRecording {
+            let currentTime = Int(Date().toMilliSeconds - self.recordingStartTime)
+            if self.viewModel.poseSequence.initialPoseTime == -1 {
+                self.viewModel.poseSequence.initialPoseTime = currentTime
+            }
+            self.viewModel.poseSequence.poses[currentTime] = CodablePose(from: observedBody)
+        }
     }
 }

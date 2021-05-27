@@ -27,6 +27,10 @@ extension Int {
         
         return time
     }
+    
+    var degreeToRadian: CGFloat {
+        .pi * CGFloat(self) / 180.0
+    }
 }
 
 extension UINavigationController {

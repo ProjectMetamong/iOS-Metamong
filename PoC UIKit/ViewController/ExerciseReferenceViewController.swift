@@ -16,10 +16,13 @@ class ExerciseReferenceViewController: UIViewController {
     
     private let viewModel: ExerciseReferenceViewModel = ExerciseReferenceViewModel()
     
+    // User Pose Related
     private var referencePoseEdgePaths = UIBezierPath()
     private var referencePosePointPaths = UIBezierPath()
     
-    private var startingTime: Int64?
+    // Display Time Related
+    private var displayStartTime: Int64 = Date().toMilliSeconds
+    var timeObserver: Any?
     
     lazy var fakeCaptureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -47,13 +50,23 @@ class ExerciseReferenceViewController: UIViewController {
         let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         let fileUrl = documentsDirectoryUrl?.appendingPathComponent("test.mov")
         let player = AVPlayer(url: fileUrl!)
+        
+        self.timeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
+            if self.referenceVideo.currentItem?.status == .readyToPlay {
+                let duration = CMTimeGetSeconds((self.referenceVideo.currentItem?.asset.duration)!)
+                let currentTime = CMTimeGetSeconds((self.referenceVideo.currentTime()))
+                let progress = Float(currentTime / duration) * 100
+                self.progressBar.value = progress
+            }
+        }
+
         return player
     }()
     
     lazy var referenceVideoLayer: AVPlayerLayer = {
         let layer = AVPlayerLayer(player: self.referenceVideo)
         
-        let rotate = CGAffineTransform(rotationAngle: degreeToRadian(90))
+        let rotate = CGAffineTransform(rotationAngle: 90.degreeToRadian)
         let flip = CGAffineTransform(scaleX: -1, y: 1)
         let rotateAndFlip = rotate.concatenating(flip)
         layer.setAffineTransform(rotateAndFlip)
@@ -92,6 +105,11 @@ class ExerciseReferenceViewController: UIViewController {
         return layer
     }()
     
+    lazy var referenceDisplayTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayReference), userInfo: nil, repeats: true)
+        return timer
+    }()
+    
     lazy var stopButton: UIButton = {
         let button = UIButton()
         button.clipsToBounds = true
@@ -124,13 +142,6 @@ class ExerciseReferenceViewController: UIViewController {
         return slider
     }()
     
-    lazy var referenceDisplayTimer: Timer = {
-        let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayReference), userInfo: nil, repeats: true)
-        return timer
-    }()
-    
-    var timeObserver: Any?
-    
     // MARK: - Lifecycles
     
     override func viewDidLoad() {
@@ -138,17 +149,24 @@ class ExerciseReferenceViewController: UIViewController {
         
         self.configureUI()
         
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         self.referenceVideo.play()
-        self.startingTime = Date().toMilliSeconds
+        self.displayStartTime = Date().toMilliSeconds
         self.referenceDisplayTimer.fire()
+        CATransaction.commit()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
         self.referenceVideo.removeTimeObserver(self.timeObserver!)
         self.timeObserver = nil
         self.referenceDisplayTimer.invalidate()
@@ -163,15 +181,6 @@ class ExerciseReferenceViewController: UIViewController {
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.startButton)
         self.view.addSubview(self.progressBar)
-            
-        self.timeObserver = self.referenceVideo.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
-            if self.referenceVideo.currentItem?.status == .readyToPlay {
-                let duration = CMTimeGetSeconds((self.referenceVideo.currentItem?.asset.duration)!)
-                let currentTime = CMTimeGetSeconds((self.referenceVideo.currentTime()))
-                let progress = Float(currentTime / duration) * 100
-                self.progressBar.value = progress
-            }
-        }
         
         self.stopButton.snp.makeConstraints {
             $0.right.equalTo(self.view.snp.right).offset(-15)
@@ -195,9 +204,11 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
+        // Removes old points and edges
         self.referencePoseEdgePaths.removeAllPoints()
         self.referencePosePointPaths.removeAllPoints()
         
+        // Add new edges
         for edge in edges {
             guard let from = points[edge.from]!, let to = points[edge.to]! else { continue }
             let path = UIBezierPath()
@@ -206,13 +217,14 @@ class ExerciseReferenceViewController: UIViewController {
             self.referencePoseEdgePaths.append(path)
         }
         
-        for (key, point) in points {
+        // Add new points
+        for (_, point) in points {
             guard let point = point else { continue }
-            print("key : \(key.rawValue), x : \(point.x), y : \(point.y)")
             let path = UIBezierPath(center: point, radius: posePointRadius)
             self.referencePosePointPaths.append(path)
         }
         
+        // Commit new edges and points
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         self.referencePoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
@@ -221,14 +233,6 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     // MARK: - Actions
-    
-    @objc func displayReference() {
-        let time = Int(Date().toMilliSeconds - self.startingTime!)
-        if let codablePose = self.viewModel.poseSequence.poses[time] {
-            let recordedBody = Pose(from: codablePose)
-            recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
-        }
-    }
     
     @objc func handleStopButtonTapped() {
         self.navigationController?.popViewController(animated: true)
@@ -242,5 +246,13 @@ class ExerciseReferenceViewController: UIViewController {
         
         self.navigationController?.hero.navigationAnimationType = .fade
         self.navigationController?.pushViewController(exerciseCamViewController, animated: true)
+    }
+    
+    @objc func displayReference() {
+        let time = Int(Date().toMilliSeconds - self.displayStartTime)
+        if let codablePose = self.viewModel.poseSequence.poses[time] {
+            let recordedBody = Pose(from: codablePose)
+            recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        }
     }
 }
