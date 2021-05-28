@@ -12,6 +12,7 @@ import Vision
 let backgroundColor = CGColor(red: 252 / 255, green: 247 / 255, blue: 227 / 255, alpha: 1.0)
 let buttonColor = CGColor(red: 250 / 255, green: 136 / 255, blue: 136 / 255, alpha: 1.0)
 let recordIndicatingColor = CGColor(red: 248 / 255, green: 35 / 255, blue: 37 / 255, alpha: 1.0)
+let labelBackgroundColor = CGColor(red: 0, green: 0, blue: 0, alpha: 0.5)
 
 let cornerRadius = CGFloat(20)
 
@@ -62,3 +63,5 @@ let userPoseStrokeColor: CGColor = #colorLiteral(red: 0.2196078449, green: 0.007
 let userPosePointColor: CGColor = #colorLiteral(red: 0, green: 0.9810667634, blue: 0.5736914277, alpha: 1)
 let referencePoseStrokeColor: CGColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 1)
 let referencePosePointColor: CGColor = #colorLiteral(red: 1, green: 0.5781051517, blue: 0, alpha: 1)
+
+let difficulties = ["초급", "중급", "고급"]

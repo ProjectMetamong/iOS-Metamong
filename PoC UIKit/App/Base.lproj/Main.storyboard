@@ -118,7 +118,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-784" y="1583"/>
+            <point key="canvasLocation" x="-784.05797101449286" y="1582.3660714285713"/>
         </scene>
         <!--업로드-->
         <scene sceneID="g4q-DO-ZPT">
@@ -127,58 +127,10 @@
                     <view key="view" contentMode="scaleToFill" id="Kgl-tu-RKB">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="FZj-Ir-aCa">
-                                <rect key="frame" x="15" y="155" width="384" height="192"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HsH-06-yLl">
-                                        <rect key="frame" x="0.0" y="2.5" width="187" height="187"/>
-                                        <color key="backgroundColor" systemColor="systemGray3Color"/>
-                                        <gestureRecognizers/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" secondItem="HsH-06-yLl" secondAttribute="height" multiplier="1:1" id="uft-YK-moy"/>
-                                        </constraints>
-                                    </imageView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="vjT-oy-iT3">
-                                        <rect key="frame" x="207" y="8" width="177" height="176"/>
-                                        <subviews>
-                                            <textField opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="타이틀" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nH1-Dn-a00">
-                                                <rect key="frame" x="0.0" y="0.0" width="177" height="45"/>
-                                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="30"/>
-                                                <textInputTraits key="textInputTraits"/>
-                                            </textField>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="0wu-uS-HZI">
-                                                <rect key="frame" x="0.0" y="145" width="177" height="32"/>
-                                                <segments>
-                                                    <segment title="초보자"/>
-                                                    <segment title="중급자"/>
-                                                    <segment title="고급자"/>
-                                                </segments>
-                                            </segmentedControl>
-                                        </subviews>
-                                    </stackView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="vjT-oy-iT3" firstAttribute="top" secondItem="FZj-Ir-aCa" secondAttribute="top" constant="8" id="3pR-Ky-JAr"/>
-                                    <constraint firstAttribute="width" secondItem="FZj-Ir-aCa" secondAttribute="height" multiplier="2:1" id="Hqw-Ld-x5k"/>
-                                    <constraint firstAttribute="bottom" secondItem="vjT-oy-iT3" secondAttribute="bottom" constant="8" id="u1s-Tj-R3W"/>
-                                </constraints>
-                            </stackView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="VIe-8s-EF6"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="VIe-8s-EF6" firstAttribute="trailing" secondItem="FZj-Ir-aCa" secondAttribute="trailing" constant="15" id="EbP-gl-3lI"/>
-                            <constraint firstItem="FZj-Ir-aCa" firstAttribute="leading" secondItem="VIe-8s-EF6" secondAttribute="leading" constant="15" id="ZZx-Ev-wQR"/>
-                            <constraint firstItem="VIe-8s-EF6" firstAttribute="top" secondItem="FZj-Ir-aCa" secondAttribute="top" constant="-15" id="vNO-ON-Ff0"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="업로드" id="sqh-p6-OdF"/>
-                    <connections>
-                        <outlet property="subjectSegmentControl" destination="0wu-uS-HZI" id="CQD-7k-6dv"/>
-                        <outlet property="thumbnailImageView" destination="HsH-06-yLl" id="Zcf-b7-ifg"/>
-                        <outlet property="titleTextField" destination="nH1-Dn-a00" id="jMG-Re-qig"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="29U-uf-dIJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -246,9 +198,6 @@
         <image name="video" catalog="system" width="128" height="83"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemGray3Color">
-            <color red="0.7803921568627451" green="0.7803921568627451" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

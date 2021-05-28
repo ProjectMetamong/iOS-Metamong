@@ -8,7 +8,7 @@
 import Foundation
 
 struct Exercise {
-    let id: String
+    let id: UUID
     let thumbnailURL: URL?
     let title: String
     let difficulty: String
@@ -16,13 +16,13 @@ struct Exercise {
     let length: String
     let description: String
     
-    init(id: String, thumbnailURL: String, title: String, difficulty: String, creator: String, length: Int, description: String) {
-        self.id = id
+    init(thumbnailURL: String, title: String, difficulty: String, creator: String, length: Int, description: String) {
+        self.id = UUID()
         self.thumbnailURL = URL(string: thumbnailURL)
         self.title = title
         self.difficulty = difficulty
         self.creator = creator
-        self.length = length.toTimeString()
+        self.length = length.msToTimeString()
         self.description = description
     }
 }

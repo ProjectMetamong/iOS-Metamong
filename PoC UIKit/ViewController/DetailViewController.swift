@@ -23,7 +23,7 @@ class DetailViewController: UIViewController {
     
     var timeLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
@@ -31,7 +31,7 @@ class DetailViewController: UIViewController {
     
     var titleLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 40, weight: .heavy)
         label.textColor = .white
         return label
@@ -39,7 +39,7 @@ class DetailViewController: UIViewController {
     
     var difficultyLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textColor = .white
         return label
@@ -47,7 +47,7 @@ class DetailViewController: UIViewController {
     
     var creatorLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textColor = .white
         return label
