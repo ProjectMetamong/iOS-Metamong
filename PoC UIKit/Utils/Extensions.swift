@@ -10,26 +10,35 @@ import UIKit
 import Vision
 
 extension Int {
-    func toTimeString() -> String {
+    func msToTimeString(forStopWatch: Bool = false) -> String {
         var time = ""
         
-        let hours = self / 3600
-        let minutes = (self - (hours * 3600)) / 60
-        let seconds = self - (hours * 3600) - (minutes * 60)
+        let hours = self / 3600000
+        let minutes = self / 60000
+        let seconds = (self - (minutes * 60000)) / 1000
         
-        if hours > 0 {
-            time += "\(hours)h"
+        if forStopWatch {
+            time = String(format: " %02d:%02d:%02d ", hours, minutes, seconds)
+        } else {
+            if hours > 0 {
+                time += "\(hours)h"
+            }
+            if minutes > 0 {
+                time += "\(minutes)m"
+            }
+            time += "\(seconds)s"
         }
-        if minutes > 0 {
-            time += "\(minutes)m"
-        }
-        time += "\(seconds)s"
-        
         return time
     }
     
     var degreeToRadian: CGFloat {
         .pi * CGFloat(self) / 180.0
+    }
+}
+
+extension CGColor {
+    var getUIColor: UIColor {
+        UIColor(cgColor: self)
     }
 }
 

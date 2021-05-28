@@ -40,11 +40,11 @@ class SearchViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
-        self.view.backgroundColor = backgroundColor
-        self.navigationController?.navigationBar.backgroundColor = backgroundColor
-        self.navigationController?.navigationBar.barTintColor = backgroundColor
-        self.tabBarController?.tabBar.barTintColor = backgroundColor
-        self.resultCollectionView.backgroundColor = backgroundColor
+        self.view.backgroundColor = backgroundColor.getUIColor
+        self.navigationController?.navigationBar.backgroundColor = backgroundColor.getUIColor
+        self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
+        self.tabBarController?.tabBar.barTintColor = backgroundColor.getUIColor
+        self.resultCollectionView.backgroundColor = backgroundColor.getUIColor
         
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.searchController.hidesNavigationBarDuringPresentation = false

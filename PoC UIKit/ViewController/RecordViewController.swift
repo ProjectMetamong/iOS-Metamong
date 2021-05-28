@@ -118,11 +118,21 @@ class RecordViewController: UIViewController {
         let button = UIButton()
         button.clipsToBounds = true
         button.layer.cornerRadius = cornerRadius
-        button.backgroundColor = .red
+        button.backgroundColor = UIColor(cgColor: recordIndicatingColor)
         button.setTitle("촬영 종료", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 25, weight: .heavy)
         button.addTarget(self, action: #selector(self.handleStopButtonTapped), for: .touchUpInside)
         return button
+    }()
+    
+    lazy var recordingTimeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 20, weight: .bold)
+        label.layer.cornerRadius = 3
+        label.layer.masksToBounds = true
+        label.textColor = .white
+        label.text = 0.msToTimeString(forStopWatch: true)
+        return label
     }()
     
     lazy var standbyLabel: UILabel = {
@@ -181,6 +191,7 @@ class RecordViewController: UIViewController {
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.standbyLabel)
         self.view.addSubview(self.standbyBackground)
+        self.view.addSubview(self.recordingTimeLabel)
         
         self.view.bringSubviewToFront(self.standbyLabel)
         
@@ -201,6 +212,11 @@ class RecordViewController: UIViewController {
             $0.centerX.equalTo(self.standbyLabel.snp.centerX)
             $0.width.equalTo(200)
             $0.height.equalTo(200)
+        }
+        
+        self.recordingTimeLabel.snp.makeConstraints {
+            $0.centerX.equalTo(self.view.snp.centerX)
+            $0.top.equalTo(self.view.snp.topMargin)
         }
     }
     
@@ -232,6 +248,12 @@ class RecordViewController: UIViewController {
         self.userPosePointLayer.path = self.userPosePointPaths.cgPath
         CATransaction.commit()
     }
+
+    func animateRecordingTimeLabel() {
+        UIView.animate(withDuration: 0.2, animations: {
+            self.recordingTimeLabel.layer.backgroundColor = recordIndicatingColor
+        })
+    }
     
     // MARK: - Actions
     
@@ -246,6 +268,7 @@ class RecordViewController: UIViewController {
         } else if self.remainingReadyTime == 0 {
             self.standbyBackground.isHidden = true
             self.standbyLabel.isHidden = true
+            self.animateRecordingTimeLabel()
             self.recordingStartTime = Date().toMilliSeconds
             self.isRecording = true
             self.standbyTimer.invalidate()
@@ -267,6 +290,7 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AV
                 let channels = Int(asbd.pointee.mChannelsPerFrame)
                 let samples = asbd.pointee.mSampleRate
                 self.audioVideoWriter = AVWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, saveAs: "test")
+                self.audioVideoWriter?.delegate = self
             }
             audioVideoWriter?.write(sampleBuffer: sampleBuffer, isVideoData: isVideoData)
         }
@@ -290,6 +314,16 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AV
                 self.viewModel.poseSequence.initialPoseTime = currentTime
             }
             self.viewModel.poseSequence.poses[currentTime] = CodablePose(from: observedBody)
+        }
+    }
+}
+
+// MARK: - AVWriterDelegate
+
+extension RecordViewController: AVWriterDelegate {
+    func updateRecordingTime(ms: Int) {
+        DispatchQueue.main.sync {
+            self.recordingTimeLabel.text = ms.msToTimeString(forStopWatch: true)
         }
     }
 }

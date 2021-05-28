@@ -11,6 +11,8 @@ import SnapKit
 class UploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     // MARK: - Properties
     
+    private var viewModel: UploadViewModel = UploadViewModel()
+    
     lazy var imagePicker: UIImagePickerController = {
         let picker: UIImagePickerController = UIImagePickerController()
         picker.sourceType = .photoLibrary
@@ -32,7 +34,7 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         let button = UIButton()
         button.layer.cornerRadius = cornerRadius
         button.layer.masksToBounds = true
-        button.backgroundColor = buttonColor
+        button.backgroundColor = buttonColor.getUIColor
         button.setTitle("영상 선택 및 업로드", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
         button.addTarget(self, action: #selector(self.handleUploadButtonTapped), for: .touchUpInside)
@@ -82,9 +84,9 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
             $0.height.equalTo(50)
         }
         
-        self.view.backgroundColor = backgroundColor
-        self.navigationController?.navigationBar.backgroundColor = backgroundColor
-        self.navigationController?.navigationBar.barTintColor = backgroundColor
+        self.view.backgroundColor = backgroundColor.getUIColor
+        self.navigationController?.navigationBar.backgroundColor = backgroundColor.getUIColor
+        self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
         
         self.thumbnailImageView.contentMode = .scaleAspectFill
         self.thumbnailImageView.layer.cornerRadius = cornerRadius

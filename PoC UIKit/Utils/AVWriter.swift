@@ -8,12 +8,18 @@
 import UIKit
 import AVFoundation
 
+protocol AVWriterDelegate {
+    func updateRecordingTime(ms: Int)
+}
+
 class AVWriter : NSObject {
+    
+    var delegate: AVWriterDelegate?
     
     private var assetWriter: AVAssetWriter!
     private var videoInput: AVAssetWriterInput!
     private var audioInput: AVAssetWriterInput!
-    private var offsetTime = CMTime.zero
+    private var presentationStartTime = CMTime.zero
     
     init(height: Int, width: Int, channels: Int, samples: Float64, saveAs fileName: String){
         guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
@@ -48,25 +54,19 @@ class AVWriter : NSObject {
     func write(sampleBuffer: CMSampleBuffer, isVideoData: Bool){
         if CMSampleBufferDataIsReady(sampleBuffer) {
             if self.assetWriter.status == .unknown && isVideoData{
-                self.offsetTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+                self.presentationStartTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
                 self.assetWriter?.startWriting()
-                self.assetWriter?.startSession(atSourceTime: CMTime.zero)
+                self.assetWriter?.startSession(atSourceTime: self.presentationStartTime)
             }
             
             if self.assetWriter.status == .writing {
                 let targetInput: AVAssetWriterInput? = isVideoData ? videoInput : audioInput
-                var modifiedBuffer : CMSampleBuffer?
-                var count: CMItemCount = 1
-                var info = CMSampleTimingInfo()
-                CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, entryCount: count, arrayToFill: &info, entriesNeededOut: &count)
-                info.presentationTimeStamp = CMTimeSubtract(info.presentationTimeStamp, offsetTime)
-                CMSampleBufferCreateCopyWithNewTiming(allocator: kCFAllocatorDefault, sampleBuffer: sampleBuffer, sampleTimingEntryCount: 1, sampleTimingArray: &info, sampleBufferOut: &modifiedBuffer)
-                
-                guard let buffer = modifiedBuffer else { return }
                 guard let input = targetInput else { return }
                 if input.isReadyForMoreMediaData {
-                    input.append(buffer)
+                    input.append(sampleBuffer)
                 }
+                let recordingTime = Int(CMTimeGetSeconds(CMTimeSubtract(sampleBuffer.presentationTimeStamp, self.presentationStartTime)) * 1000)
+                delegate?.updateRecordingTime(ms: recordingTime)
             }
         }
     }

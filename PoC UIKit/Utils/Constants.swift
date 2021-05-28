@@ -9,8 +9,9 @@ import UIKit
 import Nuke
 import Vision
 
-let backgroundColor = UIColor(red: 252 / 255, green: 247 / 255, blue: 227 / 255, alpha: 1.0)
-let buttonColor = UIColor(red: 250 / 255, green: 136 / 255, blue: 136 / 255, alpha: 1.0)
+let backgroundColor = CGColor(red: 252 / 255, green: 247 / 255, blue: 227 / 255, alpha: 1.0)
+let buttonColor = CGColor(red: 250 / 255, green: 136 / 255, blue: 136 / 255, alpha: 1.0)
+let recordIndicatingColor = CGColor(red: 248 / 255, green: 35 / 255, blue: 37 / 255, alpha: 1.0)
 
 let cornerRadius = CGFloat(20)
 

@@ -66,7 +66,7 @@ class DetailViewController: UIViewController {
         let button = UIButton()
         button.layer.cornerRadius = cornerRadius
         button.layer.masksToBounds = true
-        button.backgroundColor = buttonColor
+        button.backgroundColor = buttonColor.getUIColor
         button.setTitle("시작하기", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
         button.addTarget(self, action: #selector(self.handleStartButtonTapped), for: .touchUpInside)
@@ -102,7 +102,7 @@ class DetailViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
-        self.view.backgroundColor = backgroundColor
+        self.view.backgroundColor = backgroundColor.getUIColor
         
         self.view.addSubview(self.thumbnailImageView)
         self.view.addSubview(self.timeLabel)
