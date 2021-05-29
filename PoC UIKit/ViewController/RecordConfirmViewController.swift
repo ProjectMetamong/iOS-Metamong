@@ -167,6 +167,7 @@ class RecordConfirmViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        self.recordVideo.pause()
         self.recordVideo.removeTimeObserver(self.timeObserver!)
         self.timeObserver = nil
         self.recordDisplayTimer.invalidate()
@@ -197,7 +198,7 @@ class RecordConfirmViewController: UIViewController {
         }
         
         self.progressBar.snp.makeConstraints {
-            $0.top.equalTo(self.view.snp.topMargin).offset(15)
+            $0.top.equalTo(self.view.snp.topMargin)
             $0.left.equalTo(self.view.snp.left).offset(15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
         }
@@ -244,17 +245,17 @@ class RecordConfirmViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleRetakeButtonTapped() {
-        self.navigationController?.popToViewController(ofClass: RecordViewController.self)
+        let recordViewController = RecordViewController()
+        recordViewController.isHeroEnabled = true
         
-//        let recordViewController = RecordViewController()
-//        recordViewController.isHeroEnabled = true
-//        self.navigationController?.hero.navigationAnimationType = .fade
-//        self.navigationController?.pushViewController(recordViewController, animated: true)
+        var newViewControllers = self.navigationController?.viewControllers
+        newViewControllers?.removeLast()
+        newViewControllers?.removeLast()
+        newViewControllers?.append(recordViewController)
+        self.navigationController?.setViewControllers(newViewControllers!, animated: true)
     }
     
     @objc func handleConfirmButtonTapped() {
-        self.tabBarController?.tabBar.isHidden = false
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
     

@@ -167,6 +167,7 @@ class ExerciseReferenceViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        self.referenceVideo.pause()
         self.referenceVideo.removeTimeObserver(self.timeObserver!)
         self.timeObserver = nil
         self.referenceDisplayTimer.invalidate()
@@ -197,7 +198,7 @@ class ExerciseReferenceViewController: UIViewController {
         }
         
         self.progressBar.snp.makeConstraints {
-            $0.top.equalTo(self.view.snp.topMargin).offset(15)
+            $0.top.equalTo(self.view.snp.topMargin)
             $0.left.equalTo(self.view.snp.left).offset(15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
         }
@@ -248,7 +249,6 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     @objc func handleStartButtonTapped() {
-        self.referenceVideo.pause()
         let exerciseCamViewController = ExerciseCamViewController()
         
         exerciseCamViewController.hero.isEnabled = true

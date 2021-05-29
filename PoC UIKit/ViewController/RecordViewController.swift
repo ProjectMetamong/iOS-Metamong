@@ -14,7 +14,7 @@ class RecordViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let viewModel: RecordViewModel = RecordViewModel()
+    private var viewModel: RecordViewModel = RecordViewModel()
     
     // Capture Session DataOutputQueues
     private let videoDataOutputQueue = DispatchQueue(label: "CameraDataOutput", qos: .userInteractive)
@@ -263,24 +263,20 @@ class RecordViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        // todo : 조건을 더 강화해야함. 영상은 최소 몇초, 포즈는 최소 몇개 이런 조건을 두자.
-        self.captureSession.stopRunning()
-        self.audioVideoWriter?.stop(completion: {
-            print("complete writing video")
-            self.viewModel.poseSequence.encodeAndSave(as: "test") {
-                print("complete writing pose")
-                
-                DispatchQueue.main.sync {
-                    if self.isRecording {
+        if self.isRecording {
+            self.captureSession.stopRunning()
+            self.audioVideoWriter?.stop(completion: {
+                self.viewModel.poseSequence.encodeAndSave(as: "test") {
+                    DispatchQueue.main.sync {
                         let recordConfirmViewController = RecordConfirmViewController()
                         recordConfirmViewController.isHeroEnabled = true
                         self.navigationController?.pushViewController(recordConfirmViewController, animated: true)
-                    } else {
-                        self.navigationController?.popToViewController(ofClass: UploadViewController.self)
                     }
                 }
-            }
-        })
+            })
+        } else {
+            self.navigationController?.popToViewController(ofClass: UploadViewController.self)
+        }
     }
     
     @objc func countDown() {
