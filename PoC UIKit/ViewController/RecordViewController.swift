@@ -135,25 +135,35 @@ class RecordViewController: UIViewController {
         return label
     }()
     
-    lazy var standbyLabel: UILabel = {
+    lazy var standByLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
         label.textColor = .white
         label.text = "5"
+        label.isHidden = true
         return label
     }()
     
-    lazy var standbyBackground: UIView = {
+    lazy var standByBackground: UIView = {
         let view = UIView(frame: CGRect())
         view.clipsToBounds = true
         view.layer.cornerRadius = 100
         view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
+        view.isHidden = true
         return view
     }()
     
-    lazy var standbyTimer: Timer = {
+    lazy var standByTimer: Timer = {
         let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
         return timer
+    }()
+    
+    private lazy var startStandByCountDownTrigger: Void = {
+        DispatchQueue.main.async {
+            self.standByLabel.isHidden = false
+            self.standByBackground.isHidden = false
+            self.standByTimer.fire()
+        }
     }()
     
     // MARK: - Lifecycles
@@ -162,7 +172,6 @@ class RecordViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
-        self.standbyTimer.fire()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -175,10 +184,6 @@ class RecordViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        self.captureSession.stopRunning()
-        self.audioVideoWriter?.stop()
-        self.viewModel.poseSequence.encodeAndSave(as: "test")
-        
         self.tabBarController?.tabBar.isHidden = false
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
@@ -189,11 +194,11 @@ class RecordViewController: UIViewController {
         self.view.layer.addSublayer(captureLayer)
         self.view.layer.addSublayer(overlayLayer)
         self.view.addSubview(self.stopButton)
-        self.view.addSubview(self.standbyLabel)
-        self.view.addSubview(self.standbyBackground)
+        self.view.addSubview(self.standByLabel)
+        self.view.addSubview(self.standByBackground)
         self.view.addSubview(self.recordingTimeLabel)
         
-        self.view.bringSubviewToFront(self.standbyLabel)
+        self.view.bringSubviewToFront(self.standByLabel)
         
         self.stopButton.snp.makeConstraints {
             $0.left.equalTo(self.view.snp.left).offset(15)
@@ -202,14 +207,14 @@ class RecordViewController: UIViewController {
             $0.height.equalTo(50)
         }
         
-        self.standbyLabel.snp.makeConstraints {
+        self.standByLabel.snp.makeConstraints {
             $0.centerY.equalTo(self.view.snp.centerY)
             $0.centerX.equalTo(self.view.snp.centerX)
         }
         
-        self.standbyBackground.snp.makeConstraints {
-            $0.centerY.equalTo(self.standbyLabel.snp.centerY)
-            $0.centerX.equalTo(self.standbyLabel.snp.centerX)
+        self.standByBackground.snp.makeConstraints {
+            $0.centerY.equalTo(self.standByLabel.snp.centerY)
+            $0.centerX.equalTo(self.standByLabel.snp.centerX)
             $0.width.equalTo(200)
             $0.height.equalTo(200)
         }
@@ -258,20 +263,37 @@ class RecordViewController: UIViewController {
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
-        self.navigationController?.popToViewController(ofClass: UploadViewController.self)
+        // todo : 조건을 더 강화해야함. 영상은 최소 몇초, 포즈는 최소 몇개 이런 조건을 두자.
+        self.captureSession.stopRunning()
+        self.audioVideoWriter?.stop(completion: {
+            print("complete writing video")
+            self.viewModel.poseSequence.encodeAndSave(as: "test") {
+                print("complete writing pose")
+                
+                DispatchQueue.main.sync {
+                    if self.isRecording {
+                        let recordConfirmViewController = RecordConfirmViewController()
+                        recordConfirmViewController.isHeroEnabled = true
+                        self.navigationController?.pushViewController(recordConfirmViewController, animated: true)
+                    } else {
+                        self.navigationController?.popToViewController(ofClass: UploadViewController.self)
+                    }
+                }
+            }
+        })
     }
     
     @objc func countDown() {
         if self.remainingReadyTime > 0 {
             self.remainingReadyTime -= 1
-            self.standbyLabel.text = "\(self.remainingReadyTime)"
+            self.standByLabel.text = "\(self.remainingReadyTime)"
         } else if self.remainingReadyTime == 0 {
-            self.standbyBackground.isHidden = true
-            self.standbyLabel.isHidden = true
-            self.animateRecordingTimeLabel()
+            self.standByBackground.isHidden = true
+            self.standByLabel.isHidden = true
+            self.standByTimer.invalidate()
             self.recordingStartTime = Date().toMilliSeconds
+            self.animateRecordingTimeLabel()
             self.isRecording = true
-            self.standbyTimer.invalidate()
         }
     }
 }
@@ -280,8 +302,8 @@ class RecordViewController: UIViewController {
 
 extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
         // Video/Audio recording
+        
         if isRecording {
             let isVideoData = output is AVCaptureVideoDataOutput
             if self.audioVideoWriter == nil && !isVideoData{
@@ -300,6 +322,7 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AV
         try? handler.perform([bodyPoseRequest])
         
         guard let observation = bodyPoseRequest.results?.first else { return }
+        _ = startStandByCountDownTrigger
         let observedBody = Pose(observed: observation)
         
         // Display user body pose

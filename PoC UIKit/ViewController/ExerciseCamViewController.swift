@@ -147,26 +147,37 @@ class ExerciseCamViewController: UIViewController {
         return label
     }()
     
-    lazy var standbyLabel: UILabel = {
+    lazy var standByLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 150, weight: .heavy)
         label.textColor = .white
         label.text = "5"
+        label.isHidden = true
         return label
     }()
     
-    lazy var standbyBackground: UIView = {
+    lazy var standByBackground: UIView = {
         let view = UIView(frame: CGRect())
         view.clipsToBounds = true
         view.layer.cornerRadius = 100
         view.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.5)
+        view.isHidden = true
         return view
     }()
     
-    lazy var standbyTimer: Timer = {
+    lazy var standByTimer: Timer = {
         let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
         return timer
     }()
+    
+    private lazy var startStandByCountDownTrigger: Void = {
+        DispatchQueue.main.async {
+            self.standByLabel.isHidden = false
+            self.standByBackground.isHidden = false
+            self.standByTimer.fire()
+        }
+    }()
+    
     
     // MARK: - Lifecycles
     
@@ -175,7 +186,6 @@ class ExerciseCamViewController: UIViewController {
         
         self.configureUI()
         self.displayInitialReferencePose()
-        self.standbyTimer.fire()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -200,10 +210,10 @@ class ExerciseCamViewController: UIViewController {
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.progressBar)
         self.view.addSubview(self.scoreLabel)
-        self.view.addSubview(self.standbyLabel)
-        self.view.addSubview(self.standbyBackground)
+        self.view.addSubview(self.standByLabel)
+        self.view.addSubview(self.standByBackground)
         
-        self.view.bringSubviewToFront(self.standbyLabel)
+        self.view.bringSubviewToFront(self.standByLabel)
         
         self.stopButton.snp.makeConstraints {
             $0.right.equalTo(self.view.snp.right).offset(-15)
@@ -223,14 +233,14 @@ class ExerciseCamViewController: UIViewController {
             $0.right.equalTo(self.view.snp.right).offset(-15)
         }
         
-        self.standbyLabel.snp.makeConstraints {
+        self.standByLabel.snp.makeConstraints {
             $0.centerY.equalTo(self.view.snp.centerY)
             $0.centerX.equalTo(self.view.snp.centerX)
         }
         
-        self.standbyBackground.snp.makeConstraints {
-            $0.centerY.equalTo(self.standbyLabel.snp.centerY)
-            $0.centerX.equalTo(self.standbyLabel.snp.centerX)
+        self.standByBackground.snp.makeConstraints {
+            $0.centerY.equalTo(self.standByLabel.snp.centerY)
+            $0.centerX.equalTo(self.standByLabel.snp.centerX)
             $0.width.equalTo(200)
             $0.height.equalTo(200)
         }
@@ -317,13 +327,13 @@ class ExerciseCamViewController: UIViewController {
     @objc func countDown() {
         if self.remainingReadyTime > 0 {
             self.remainingReadyTime -= 1
-            self.standbyLabel.text = "\(self.remainingReadyTime)"
+            self.standByLabel.text = "\(self.remainingReadyTime)"
         } else if self.remainingReadyTime == 0 {
-            self.standbyBackground.isHidden = true
-            self.standbyLabel.isHidden = true
+            self.standByBackground.isHidden = true
+            self.standByLabel.isHidden = true
             self.evaluationStartTime = Date().toMilliSeconds
             self.referenceDisplayTimer.fire()
-            self.standbyTimer.invalidate()
+            self.standByTimer.invalidate()
         }
     }
 }
@@ -339,6 +349,7 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
         
         guard let observation = bodyPoseRequest.results?.first else { return }
         let observedBody = Pose(observed: observation)
+        _ = startStandByCountDownTrigger
         
         // Display user body pose
         DispatchQueue.main.sync {
