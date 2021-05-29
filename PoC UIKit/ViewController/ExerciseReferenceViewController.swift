@@ -9,6 +9,8 @@ import UIKit
 import AVKit
 import SnapKit
 import Vision
+import RxSwift
+import RxCocoa
 
 class ExerciseReferenceViewController: UIViewController {
     
@@ -23,6 +25,8 @@ class ExerciseReferenceViewController: UIViewController {
     // Display Time Related
     private var displayStartTime: Int64 = Date().toMilliSeconds
     var timeObserver: Any?
+    
+    var disposeBag: DisposeBag = DisposeBag()
     
     lazy var fakeCaptureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -149,12 +153,8 @@ class ExerciseReferenceViewController: UIViewController {
         
         self.configureUI()
         
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
+        self.bindUI()
         self.referenceVideo.play()
-        self.displayStartTime = Date().toMilliSeconds
-        self.referenceDisplayTimer.fire()
-        CATransaction.commit()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -201,6 +201,15 @@ class ExerciseReferenceViewController: UIViewController {
             $0.left.equalTo(self.view.snp.left).offset(15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
         }
+    }
+    
+    func bindUI() {
+        self.referenceVideoLayer.rx.observe(AVPlayerLayer.self, #keyPath(AVPlayerLayer.isReadyForDisplay))
+            .subscribe(onNext: { _ in
+                self.referenceDisplayTimer.fire()
+                self.displayStartTime = Date().toMilliSeconds
+            })
+            .disposed(by: self.disposeBag)
     }
     
     func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {

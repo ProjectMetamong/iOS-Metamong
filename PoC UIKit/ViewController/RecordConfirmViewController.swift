@@ -9,6 +9,8 @@ import UIKit
 import AVKit
 import SnapKit
 import Vision
+import RxSwift
+import RxCocoa
 
 class RecordConfirmViewController: UIViewController {
 
@@ -23,6 +25,8 @@ class RecordConfirmViewController: UIViewController {
     // Display Time Related
     private var displayStartTime: Int64 = Date().toMilliSeconds
     var timeObserver: Any?
+    
+    var disposeBag: DisposeBag = DisposeBag()
     
     lazy var fakeCaptureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -73,6 +77,7 @@ class RecordConfirmViewController: UIViewController {
         
         layer.frame = view.bounds
         layer.videoGravity = .resizeAspectFill
+        
         return layer
     }()
     
@@ -148,13 +153,8 @@ class RecordConfirmViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
-        
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
+        self.bindUI()
         self.recordVideo.play()
-        self.displayStartTime = Date().toMilliSeconds
-        self.recordDisplayTimer.fire()
-        CATransaction.commit()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -232,19 +232,29 @@ class RecordConfirmViewController: UIViewController {
         CATransaction.commit()
     }
     
+    func bindUI() {
+        self.recordVideoLayer.rx.observe(AVPlayerLayer.self, #keyPath(AVPlayerLayer.isReadyForDisplay))
+            .subscribe(onNext: { _ in
+                self.displayStartTime = Date().toMilliSeconds
+                self.recordDisplayTimer.fire()
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
     // MARK: - Actions
     
     @objc func handleRetakeButtonTapped() {
-        self.navigationController?.popToViewController(ofClass: UploadViewController.self)
+        self.navigationController?.popToViewController(ofClass: RecordViewController.self)
         
-        let recordViewController = RecordViewController()
-        recordViewController.isHeroEnabled = true
-        self.navigationController?.hero.navigationAnimationType = .fade
-        self.navigationController?.pushViewController(recordViewController, animated: true)
+//        let recordViewController = RecordViewController()
+//        recordViewController.isHeroEnabled = true
+//        self.navigationController?.hero.navigationAnimationType = .fade
+//        self.navigationController?.pushViewController(recordViewController, animated: true)
     }
     
     @objc func handleConfirmButtonTapped() {
-        //self.navigationController?.popToViewController(ofClass: RecordViewController.self)
+        self.tabBarController?.tabBar.isHidden = false
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
     
