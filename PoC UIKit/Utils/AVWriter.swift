@@ -45,10 +45,8 @@ class AVWriter : NSObject {
         assetWriter.add(audioInput)
     }
     
-    func stop() {
-        self.assetWriter?.finishWriting {
-            print("Done!")
-        }
+    func stop(completion: @escaping (() -> Void)) {
+        self.assetWriter?.finishWriting(completionHandler: completion)
     }
     
     func write(sampleBuffer: CMSampleBuffer, isVideoData: Bool){

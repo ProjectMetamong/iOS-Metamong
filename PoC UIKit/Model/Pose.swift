@@ -90,7 +90,7 @@ struct PoseSequence: Codable {
         }
     }
     
-    func encodeAndSave(as name: String) {
+    func encodeAndSave(as name: String, completion: @escaping(() -> Void)) {
         let encoder = JSONEncoder()
         if let jsonData = try? encoder.encode(self) {
             guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
@@ -98,6 +98,7 @@ struct PoseSequence: Codable {
             
             do {
                 try jsonData.write(to: fileUrl, options: [])
+                completion()
             } catch {
                 print(error)
             }
