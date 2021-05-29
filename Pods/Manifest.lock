@@ -1,24 +1,44 @@
 PODS:
   - Hero (1.6.1)
   - Nuke (9.5.0)
+  - RxCocoa (6.1.0):
+    - RxRelay (= 6.1.0)
+    - RxSwift (= 6.1.0)
+  - RxGesture (4.0.2):
+    - RxCocoa (~> 6.0)
+    - RxSwift (~> 6.0)
+  - RxRelay (6.1.0):
+    - RxSwift (= 6.1.0)
+  - RxSwift (6.1.0)
   - SnapKit (5.0.1)
 
 DEPENDENCIES:
   - Hero
   - Nuke
+  - RxCocoa
+  - RxGesture
+  - RxSwift
   - SnapKit
 
 SPEC REPOS:
   trunk:
     - Hero
     - Nuke
+    - RxCocoa
+    - RxGesture
+    - RxRelay
+    - RxSwift
     - SnapKit
 
 SPEC CHECKSUMS:
   Hero: 215865ba3ae41dd9bb08cd6c60a645529c6fc94b
   Nuke: 6f400a4ea957e09149ec335a3c6acdcc814d89e4
+  RxCocoa: 5c51f02d562cbd94629f6c26cf0c80fe4ab8d343
+  RxGesture: f059f2aeef966fb17dad56ee440e76410f10e55f
+  RxRelay: 483e1a19fad961b41f0b0c0bee506f46c1ae14fe
+  RxSwift: a834e5c538e89eca0cae86f403f4fbf0336786ce
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
 
-PODFILE CHECKSUM: 141588d8329e46de8ccc8b740388450316bc5bbd
+PODFILE CHECKSUM: ff4f6e761feca6df1969db8d5ab200bbff98a53b
 
 COCOAPODS: 1.10.1

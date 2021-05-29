@@ -19,6 +19,7 @@
 		1D5573752657ED2800CBD418 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573742657ED2800CBD418 /* Extensions.swift */; };
 		1D5573772657EEC100CBD418 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5573762657EEC100CBD418 /* DetailViewModel.swift */; };
 		1D55737926589F1100CBD418 /* ExerciseReferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D55737826589F1100CBD418 /* ExerciseReferenceViewController.swift */; };
+		1D6828FC26611FB700E6E153 /* UploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6828FB26611FB700E6E153 /* UploadViewModel.swift */; };
 		1D9543032641321B00D955C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9543022641321B00D955C6 /* AppDelegate.swift */; };
 		1D9543052641321B00D955C6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9543042641321B00D955C6 /* SceneDelegate.swift */; };
 		1D9543072641321B00D955C6 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9543062641321B00D955C6 /* SearchViewController.swift */; };
@@ -48,6 +49,7 @@
 		1D5573762657EEC100CBD418 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		1D55737826589F1100CBD418 /* ExerciseReferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseReferenceViewController.swift; sourceTree = "<group>"; };
 		1D55737D265A68D200CBD418 /* PoC UIKit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PoC UIKit.entitlements"; sourceTree = "<group>"; };
+		1D6828FB26611FB700E6E153 /* UploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewModel.swift; sourceTree = "<group>"; };
 		1D9542FF2641321B00D955C6 /* PoC UIKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PoC UIKit.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D9543022641321B00D955C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1D9543042641321B00D955C6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -85,6 +87,7 @@
 				1D2643AF265D545100B70A27 /* RecordViewModel.swift */,
 				1D2643B4265E04B600B70A27 /* ExerciseCamViewModel.swift */,
 				1D2AEFFF265F773500C0D8C1 /* ExerciseReferenceViewModel.swift */,
+				1D6828FB26611FB700E6E153 /* UploadViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -313,6 +316,7 @@
 				1D95431826413A5200D955C6 /* UploadViewController.swift in Sources */,
 				1D2643A8265A87B800B70A27 /* ExerciseCamViewController.swift in Sources */,
 				1D9543032641321B00D955C6 /* AppDelegate.swift in Sources */,
+				1D6828FC26611FB700E6E153 /* UploadViewModel.swift in Sources */,
 				1D5573752657ED2800CBD418 /* Extensions.swift in Sources */,
 				1D9543052641321B00D955C6 /* SceneDelegate.swift in Sources */,
 				1D2643AC265BB16100B70A27 /* Pose.swift in Sources */,

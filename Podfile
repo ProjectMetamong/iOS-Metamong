@@ -9,5 +9,8 @@ target 'PoC UIKit' do
   pod 'Hero'
   pod 'SnapKit'
   pod 'Nuke'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+  pod 'RxGesture'
 
 end

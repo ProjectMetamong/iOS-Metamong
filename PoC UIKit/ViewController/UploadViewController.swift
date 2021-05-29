@@ -7,10 +7,16 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
+import RxGesture
 
-class UploadViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class UploadViewController: UIViewController {
     // MARK: - Properties
 
+    private let viewModel: UploadViewModel = UploadViewModel()
+    private let disposeBag: DisposeBag = DisposeBag()
+    
     lazy var thumbnailImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.backgroundColor = .systemGray3
@@ -18,7 +24,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         imageView.layer.cornerRadius = cornerRadius
         imageView.clipsToBounds = true
         imageView.isUserInteractionEnabled = true
-        imageView.addGestureRecognizer(self.thumbnailImageTapGesture)
         return imageView
     }()
 
@@ -36,7 +41,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
         label.textColor = .white
-        label.text = "테스트"
         return label
     }()
     
@@ -45,7 +49,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
         label.textColor = .white
-        label.text = "테스트"
         return label
     }()
     
@@ -54,7 +57,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         label.backgroundColor = labelBackgroundColor.getUIColor
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
         label.textColor = .white
-        label.text = "테스트"
         return label
     }()
     
@@ -88,16 +90,8 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         textField.textAlignment = .center
         textField.backgroundColor = .clear
         textField.placeholder = "난이도 선택"
-        textField.textColor = .systemBlue
         textField.borderStyle = .roundedRect
         return textField
-    }()
-    
-    lazy var timeLabel: UILabel = {
-        let label = UILabel()
-        label.text = "소요시간"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        return label
     }()
 
     lazy var difficultyPicker : UIPickerView = {
@@ -106,8 +100,6 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         picker.dataSource = self
         return picker
     }()
-    
-    lazy var barButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.dismissPicker))
     
     lazy var descriptionTextView: UITextView = {
         let textView = UITextView()
@@ -131,24 +123,34 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
     
     lazy var recordButton: UIButton = {
         let button = UIButton()
-        button.layer.cornerRadius = cornerRadius
+        button.layer.cornerRadius = 5
         button.layer.masksToBounds = true
         button.backgroundColor = recordIndicatingColor.getUIColor
-        button.setTitle("영상 촬영", for: .normal)
+        button.setTitle("촬영", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
-        button.addTarget(self, action: #selector(self.handleUploadButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(self.handleRecordButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    lazy var dismissKeyboardTapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
-    lazy var thumbnailImageTapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.imagePickerTapped(_:)))
+    lazy var uploadButton: UIButton = {
+        let button = UIButton()
+        button.layer.cornerRadius = cornerRadius
+        button.layer.masksToBounds = true
+        button.backgroundColor = buttonColor.getUIColor
+        button.setTitle("업로드", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        button.addTarget(self, action: #selector(self.handleUploadButtonTapped), for: .touchUpInside)
+        button.isEnabled = false
+        return button
+    }()
     
     // MARK: - Lifecycles
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureUI()
+        self.configureUI()
+        self.bindUI()
     }
     
     // MARK: - Helpers
@@ -164,9 +166,10 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         self.view.addSubview(self.titleTextField)
         self.view.addSubview(self.creatorTextField)
         self.view.addSubview(self.difficultyTextField)
-        self.view.addSubview(self.descriptionTextView)
         self.view.addSubview(self.recordButton)
-        self.view.addGestureRecognizer(dismissKeyboardTapGesture)
+        self.view.addSubview(self.descriptionTextView)
+        self.view.addSubview(self.uploadButton)
+        
         
         self.view.bringSubviewToFront(self.titleLabelOverThumbnail)
         self.view.bringSubviewToFront(self.difficultyLabelOverThumbnail)
@@ -187,8 +190,10 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         
         self.titleLabelOverThumbnail.snp.makeConstraints {
-            $0.bottom.equalTo(self.difficultyLabelOverThumbnail.snp.top).offset(-3)
+            let maxWidth = ((self.view.frame.width - 45) / 2) - 24
+            $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-35.5)
             $0.right.equalTo(self.thumbnailImageView.snp.right).offset(-12)
+            $0.width.lessThanOrEqualTo(maxWidth)
         }
         
         self.timeLabelOverThumbnail.snp.makeConstraints {
@@ -203,8 +208,10 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         
         self.creatorLabelOverThumbnail.snp.makeConstraints {
+            let maxWidth = ((self.view.frame.width - 45) / 2) - 60
             $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-15)
             $0.left.equalTo(self.thumbnailImageView.snp.left).offset(12)
+            $0.width.lessThanOrEqualTo(maxWidth)
         }
         
         self.creatorTextField.snp.makeConstraints {
@@ -214,7 +221,13 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         
         self.difficultyTextField.snp.makeConstraints {
-            $0.top.equalTo(self.creatorTextField.snp.bottom).offset(15)
+            $0.top.equalTo(self.creatorTextField.snp.bottom).offset(8)
+            $0.right.equalTo(self.view.snp.right).offset(-15)
+            $0.left.equalTo(self.thumbnailImageView.snp.right).offset(15)
+        }
+        
+        self.recordButton.snp.makeConstraints {
+            $0.top.equalTo(self.difficultyTextField.snp.bottom).offset(8)
             $0.right.equalTo(self.view.snp.right).offset(-15)
             $0.left.equalTo(self.thumbnailImageView.snp.right).offset(15)
         }
@@ -223,10 +236,10 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
             $0.top.equalTo(self.thumbnailImageView.snp.bottom).offset(15)
             $0.left.equalTo(self.view.snp.left).offset(15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
-            $0.bottom.equalTo(self.recordButton.snp.top).offset(15)
+            $0.bottom.equalTo(self.uploadButton.snp.top).offset(15)
         }
         
-        self.recordButton.snp.makeConstraints {
+        self.uploadButton.snp.makeConstraints {
             $0.left.equalTo(self.view.snp.left).offset(15)
             $0.right.equalTo(self.view.snp.right).offset(-15)
             $0.bottom.equalTo(self.view.snp.bottomMargin).offset(-15)
@@ -237,32 +250,103 @@ class UploadViewController: UIViewController, UIImagePickerControllerDelegate, U
         self.navigationController?.navigationBar.backgroundColor = backgroundColor.getUIColor
         self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
     }
-
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let image = info[UIImagePickerController.InfoKey.editedImage] as! UIImage
-        self.thumbnailImageView.image = image
-        self.dismiss(animated: true, completion: nil)
+    
+    func bindUI() {
+        self.view.rx.tapGesture()
+            .when(.recognized)
+            .subscribe(onNext: { _ in
+                self.view.endEditing(true)
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.thumbnailImageView.rx.tapGesture()
+            .when(.recognized)
+            .subscribe(onNext: { _ in
+                self.present(self.imagePicker, animated: true, completion: nil)
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.thumbnailImageView.rx.observe(UIImage.self, #keyPath(UIImageView.image))
+            .bind(to: self.viewModel.thumbnailImage)
+            .disposed(by: self.disposeBag)
+        
+        self.titleTextField.rx.text
+            .orEmpty
+            .bind(to: self.viewModel.title)
+            .disposed(by: self.disposeBag)
+        
+        self.creatorTextField.rx.text
+            .orEmpty
+            .bind(to: self.viewModel.creator)
+            .disposed(by: self.disposeBag)
+    
+        self.difficultyTextField.rx.text
+            .orEmpty
+            .bind(to: self.viewModel.difficulty)
+            .disposed(by: self.disposeBag)
+        
+        self.descriptionTextView.rx.text
+            .orEmpty
+            .bind(to: self.viewModel.description)
+            .disposed(by: self.disposeBag)
+        
+        self.titleTextField.rx.text
+            .orEmpty
+            .subscribe(onNext: {
+                self.titleLabelOverThumbnail.text = $0
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.creatorTextField.rx.text
+            .orEmpty
+            .subscribe(onNext: {
+                self.creatorLabelOverThumbnail.text = $0
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.difficultyTextField.rx.text
+            .orEmpty
+            .subscribe(onNext: {
+                self.difficultyLabelOverThumbnail.text = $0
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.isUploadButtonActive
+            .bind(to: self.uploadButton.rx.isEnabled)
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.isUploadButtonActive
+            .map { $0 ? 1 : 0.5 }
+            .bind(to: self.uploadButton.rx.alpha)
+            .disposed(by: self.disposeBag)
     }
     
     // MARK: - Actions
     
-    @objc func imagePickerTapped(_ sender: Any) {
-        self.present(self.imagePicker, animated: true, completion: nil)
-    }
-    
-    @objc func dismissKeyboard() {
-        self.view.endEditing(true)
-    }
-    
-    @objc func handleUploadButtonTapped() {
+    @objc func handleRecordButtonTapped() {
         let recordViewController = RecordViewController()
         recordViewController.isHeroEnabled = true
         self.navigationController?.hero.navigationAnimationType = .fade
         self.navigationController?.pushViewController(recordViewController, animated: true)
     }
     
+    @objc func handleUploadButtonTapped() {
+        print("업로드")
+        self.viewModel.upload()
+    }
+    
     @objc func dismissPicker() {
         self.difficultyTextField.resignFirstResponder()
+    }
+}
+
+// MARK: - UIImagePickerControllerDelegate
+
+extension UploadViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let image = info[UIImagePickerController.InfoKey.editedImage] as! UIImage
+        self.thumbnailImageView.image = image
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
