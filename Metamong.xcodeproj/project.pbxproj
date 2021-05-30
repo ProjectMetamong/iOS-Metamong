@@ -54,7 +54,7 @@
 		1D6828FB26611FB700E6E153 /* UploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewModel.swift; sourceTree = "<group>"; };
 		1D8109D8266223B400353825 /* RecordConfirmViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordConfirmViewController.swift; sourceTree = "<group>"; };
 		1D8109DA266223C400353825 /* RecordConfirmViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordConfirmViewModel.swift; sourceTree = "<group>"; };
-		1D9542FF2641321B00D955C6 /* PoC UIKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PoC UIKit.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D9542FF2641321B00D955C6 /* Metamong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Metamong.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D9543022641321B00D955C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1D9543042641321B00D955C6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		1D9543062641321B00D955C6 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
@@ -110,7 +110,7 @@
 		1D9543002641321B00D955C6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D9542FF2641321B00D955C6 /* PoC UIKit.app */,
+				1D9542FF2641321B00D955C6 /* Metamong.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -204,9 +204,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D9542FE2641321B00D955C6 /* PoC UIKit */ = {
+		1D9542FE2641321B00D955C6 /* Metamong */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D9543132641321C00D955C6 /* Build configuration list for PBXNativeTarget "PoC UIKit" */;
+			buildConfigurationList = 1D9543132641321C00D955C6 /* Build configuration list for PBXNativeTarget "Metamong" */;
 			buildPhases = (
 				6ADC3CADFA91016EA2E15841 /* [CP] Check Pods Manifest.lock */,
 				1D9542FB2641321B00D955C6 /* Sources */,
@@ -218,9 +218,9 @@
 			);
 			dependencies = (
 			);
-			name = "PoC UIKit";
+			name = Metamong;
 			productName = "PoC UIKit";
-			productReference = 1D9542FF2641321B00D955C6 /* PoC UIKit.app */;
+			productReference = 1D9542FF2641321B00D955C6 /* Metamong.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -237,7 +237,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1D9542FA2641321B00D955C6 /* Build configuration list for PBXProject "PoC UIKit" */;
+			buildConfigurationList = 1D9542FA2641321B00D955C6 /* Build configuration list for PBXProject "Metamong" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -250,7 +250,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D9542FE2641321B00D955C6 /* PoC UIKit */,
+				1D9542FE2641321B00D955C6 /* Metamong */,
 			);
 		};
 /* End PBXProject section */
@@ -526,7 +526,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D9542FA2641321B00D955C6 /* Build configuration list for PBXProject "PoC UIKit" */ = {
+		1D9542FA2641321B00D955C6 /* Build configuration list for PBXProject "Metamong" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D9543112641321C00D955C6 /* Debug */,
@@ -535,7 +535,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1D9543132641321C00D955C6 /* Build configuration list for PBXNativeTarget "PoC UIKit" */ = {
+		1D9543132641321C00D955C6 /* Build configuration list for PBXNativeTarget "Metamong" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D9543142641321C00D955C6 /* Debug */,
