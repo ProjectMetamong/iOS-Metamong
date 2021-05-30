@@ -12,12 +12,12 @@ import Nuke
 class DetailViewController: UIViewController {
     
     // MARK: - Properties
-    var identifier: Int?
     var viewModel: DetailViewModel?
     
     var thumbnailImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .systemGray3
         return imageView
     }()
     
@@ -40,7 +40,7 @@ class DetailViewController: UIViewController {
     var difficultyLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = labelBackgroundColor.getUIColor
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
     }()
@@ -48,7 +48,7 @@ class DetailViewController: UIViewController {
     var creatorLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = labelBackgroundColor.getUIColor
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textColor = .white
         return label
     }()
@@ -113,12 +113,12 @@ class DetailViewController: UIViewController {
         self.view.addSubview(self.startButton)
         self.view.addSubview(self.closeButton)
         
-        guard let identifier = self.identifier else { return }
-        self.titleLabel.heroID = "title_\(identifier)"
-        self.creatorLabel.heroID = "creator_\(identifier)"
-        self.difficultyLabel.heroID = "difficulty_\(identifier)"
-        self.timeLabel.heroID = "time_\(identifier)"
-        self.thumbnailImageView.heroID = "thumbnail_\(identifier)"
+        guard let viewModel = self.viewModel else { return }
+        self.titleLabel.heroID = "title_\(viewModel.exercise.id)"
+        self.creatorLabel.heroID = "creator_\(viewModel.exercise.id)"
+        self.difficultyLabel.heroID = "difficulty_\(viewModel.exercise.id)"
+        self.timeLabel.heroID = "time_\(viewModel.exercise.id)"
+        self.thumbnailImageView.heroID = "thumbnail_\(viewModel.exercise.id)"
         
         self.view.bringSubviewToFront(self.titleLabel)
         self.view.bringSubviewToFront(self.difficultyLabel)
@@ -139,6 +139,7 @@ class DetailViewController: UIViewController {
         self.titleLabel.snp.makeConstraints {
             $0.right.equalTo(self.view.snp.right).offset(-15)
             $0.bottom.equalTo(self.difficultyLabel.snp.top).offset(-8)
+            $0.left.greaterThanOrEqualTo(self.view.snp.left).offset(15)
         }
         
         self.timeLabel.snp.makeConstraints {
@@ -146,14 +147,15 @@ class DetailViewController: UIViewController {
             $0.top.equalTo(self.view.snp.topMargin)
         }
         
-        self.creatorLabel.snp.makeConstraints {
-            $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-30)
-            $0.left.equalTo(self.view.snp.left).offset(15)
-        }
-        
         self.difficultyLabel.snp.makeConstraints {
             $0.centerY.equalTo(self.creatorLabel.snp.centerY)
             $0.right.equalTo(self.view.snp.right).offset(-15)
+        }
+        
+        self.creatorLabel.snp.makeConstraints {
+            $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-30)
+            $0.left.equalTo(self.view.snp.left).offset(15)
+            $0.right.lessThanOrEqualTo(self.difficultyLabel.snp.left).offset(-15)
         }
         
         self.descriptionTextView.snp.makeConstraints {
@@ -171,10 +173,10 @@ class DetailViewController: UIViewController {
         }
         
         guard let viewModel = self.viewModel else { return }
-        guard let thumbnailURL = viewModel.exercise.thumbnailURL else { return }
-        Nuke.loadImage(with: thumbnailURL, into: self.thumbnailImageView)
+        //guard let thumbnailURL = viewModel.exercise.thumbnailURL else { return }
+        //Nuke.loadImage(with: thumbnailURL, into: self.thumbnailImageView)
         self.titleLabel.text = viewModel.exercise.title
-        self.timeLabel.text = viewModel.exercise.length
+        self.timeLabel.text = viewModel.exercise.length.msToTimeString()
         self.creatorLabel.text = viewModel.exercise.creator
         self.difficultyLabel.text = viewModel.exercise.difficulty
         self.descriptionTextView.text = viewModel.exercise.description

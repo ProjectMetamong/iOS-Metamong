@@ -196,10 +196,9 @@ class UploadViewController: UIViewController {
         }
         
         self.titleLabelOverThumbnail.snp.makeConstraints {
-            let maxWidth = ((self.view.frame.width - 45) / 2) - 24
             $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-35.5)
             $0.right.equalTo(self.thumbnailImageView.snp.right).offset(-12)
-            $0.width.lessThanOrEqualTo(maxWidth)
+            $0.left.greaterThanOrEqualTo(self.thumbnailImageView.snp.left).offset(12)
         }
         
         self.timeLabelOverThumbnail.snp.makeConstraints {
@@ -214,10 +213,9 @@ class UploadViewController: UIViewController {
         }
         
         self.creatorLabelOverThumbnail.snp.makeConstraints {
-            let maxWidth = ((self.view.frame.width - 45) / 2) - 60
             $0.bottom.equalTo(self.thumbnailImageView.snp.bottom).offset(-15)
             $0.left.equalTo(self.thumbnailImageView.snp.left).offset(12)
-            $0.width.lessThanOrEqualTo(maxWidth)
+            $0.right.lessThanOrEqualTo(self.thumbnailImageView.snp.right).offset(-50)
         }
         
         self.creatorTextField.snp.makeConstraints {

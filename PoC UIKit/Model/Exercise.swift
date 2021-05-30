@@ -9,20 +9,18 @@ import Foundation
 
 struct Exercise {
     let id: UUID
-    let thumbnailURL: URL?
     let title: String
     let difficulty: String
     let creator: String
-    let length: String
+    let length: Int
     let description: String
     
-    init(thumbnailURL: String, title: String, difficulty: String, creator: String, length: Int, description: String) {
+    init(title: String, difficulty: String, creator: String, length: Int, description: String) {
         self.id = UUID()
-        self.thumbnailURL = URL(string: thumbnailURL)
         self.title = title
         self.difficulty = difficulty
         self.creator = creator
-        self.length = length.msToTimeString()
+        self.length = length
         self.description = description
     }
 }

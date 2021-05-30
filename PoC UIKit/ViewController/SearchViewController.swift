@@ -45,6 +45,7 @@ class SearchViewController: UIViewController {
         self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
         self.tabBarController?.tabBar.barTintColor = backgroundColor.getUIColor
         self.resultCollectionView.backgroundColor = backgroundColor.getUIColor
+        self.resultCollectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
         
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.searchController.hidesNavigationBarDuringPresentation = false
@@ -73,17 +74,17 @@ extension SearchViewController: UICollectionViewDataSource {
         cell.titleLabel.text = exercise.title
         cell.creatorLabel.text = exercise.creator
         cell.difficultyLabel.text = exercise.difficulty
-        cell.timeLabel.text = exercise.length
+        cell.timeLabel.text = exercise.length.msToTimeString()
         
-        guard let thumbnailURL = exercise.thumbnailURL else { return UICollectionViewCell() }
-        Nuke.loadImage(with: thumbnailURL, into: cell.thumbnailImageView)
+        //guard let thumbnailURL = exercise.thumbnailURL else { return UICollectionViewCell() }
+        //Nuke.loadImage(with: thumbnailURL, into: cell.thumbnailImageView)
         cell.thumbnailImageView.contentMode = .scaleAspectFill
         
-        cell.titleLabel.heroID = "title_\(indexPath.row)"
-        cell.creatorLabel.heroID = "creator_\(indexPath.row)"
-        cell.difficultyLabel.heroID = "difficulty_\(indexPath.row)"
-        cell.timeLabel.heroID = "time_\(indexPath.row)"
-        cell.thumbnailImageView.heroID = "thumbnail_\(indexPath.row)"
+        cell.titleLabel.heroID = "title_\(exercise.id)"
+        cell.creatorLabel.heroID = "creator_\(exercise.id)"
+        cell.difficultyLabel.heroID = "difficulty_\(exercise.id)"
+        cell.timeLabel.heroID = "time_\(exercise.id)"
+        cell.thumbnailImageView.heroID = "thumbnail_\(exercise.id)"
         
         return cell
     }
@@ -114,10 +115,7 @@ extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let exercise = self.viewModel.exercises[indexPath.row]
         let detailViewController = DetailViewController()
-        
         detailViewController.hero.isEnabled = true
-        detailViewController.identifier = indexPath.row
-        
         detailViewController.viewModel = DetailViewModel(exercise: exercise)
         
         self.navigationController?.hero.navigationAnimationType = .fade
