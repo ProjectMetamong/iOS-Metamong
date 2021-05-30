@@ -63,6 +63,12 @@ class RecordConfirmViewController: UIViewController {
                 self.progressBar.value = progress
             }
         }
+        
+        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { [weak self] _ in
+            player.seek(to: CMTime.zero)
+            player.play()
+            self!.displayStartTime = Date().toMilliSeconds
+        }
 
         return player
     }()
