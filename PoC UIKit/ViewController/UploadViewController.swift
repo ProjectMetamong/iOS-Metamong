@@ -317,6 +317,17 @@ class UploadViewController: UIViewController {
             })
             .disposed(by: self.disposeBag)
         
+        self.viewModel.length
+            .filter({
+                $0 != nil
+            })
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: {
+                self.recordButton.setTitle($0?.msToTimeString(forStopWatch: true), for: .normal)
+                self.timeLabelOverThumbnail.text = $0?.msToTimeString()
+            })
+            .disposed(by: self.disposeBag)
+        
         self.viewModel.isUploadButtonActive
             .bind(to: self.uploadButton.rx.isEnabled)
             .disposed(by: self.disposeBag)
@@ -332,6 +343,7 @@ class UploadViewController: UIViewController {
     @objc func handleRecordButtonTapped() {
         let recordViewController = RecordViewController()
         recordViewController.isHeroEnabled = true
+        recordViewController.delegate = self
         self.navigationController?.hero.navigationAnimationType = .fade
         self.navigationController?.pushViewController(recordViewController, animated: true)
     }
@@ -386,5 +398,13 @@ extension UploadViewController: UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return difficulties.count
+    }
+}
+
+// MARK: - RecordViewControllerDelegate
+
+extension UploadViewController: RecordViewControllerDelegate {
+    func didFisnishedRecording(length: Int) {
+        self.viewModel.length.accept(length)
     }
 }

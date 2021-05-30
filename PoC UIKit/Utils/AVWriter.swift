@@ -19,7 +19,8 @@ class AVWriter : NSObject {
     private var assetWriter: AVAssetWriter!
     private var videoInput: AVAssetWriterInput!
     private var audioInput: AVAssetWriterInput!
-    private var presentationStartTime = CMTime.zero
+    private var presentationStartTime: CMTime = CMTime.zero
+    private(set) var recordingTime: Int = 0
     
     init(height: Int, width: Int, channels: Int, samples: Float64, saveAs fileName: String){
         guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
@@ -63,8 +64,8 @@ class AVWriter : NSObject {
                 if input.isReadyForMoreMediaData {
                     input.append(sampleBuffer)
                 }
-                let recordingTime = Int(CMTimeGetSeconds(CMTimeSubtract(sampleBuffer.presentationTimeStamp, self.presentationStartTime)) * 1000)
-                delegate?.updateRecordingTime(ms: recordingTime)
+                self.recordingTime = Int(CMTimeGetSeconds(CMTimeSubtract(sampleBuffer.presentationTimeStamp, self.presentationStartTime)) * 1000)
+                delegate?.updateRecordingTime(ms: self.recordingTime)
             }
         }
     }

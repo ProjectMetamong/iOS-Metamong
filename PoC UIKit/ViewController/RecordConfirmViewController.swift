@@ -16,6 +16,7 @@ class RecordConfirmViewController: UIViewController {
 
     // MARK: - Properties
     
+    var delegateForRecordViewController: RecordViewControllerDelegate? = nil
     private let viewModel: RecordConfirmViewModel = RecordConfirmViewModel()
     
     // User Pose Related
@@ -126,7 +127,7 @@ class RecordConfirmViewController: UIViewController {
         button.clipsToBounds = true
         button.layer.cornerRadius = cornerRadius
         button.backgroundColor = .red
-        button.setTitle("취소", for: .normal)
+        button.setTitle("재촬영", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
         button.addTarget(self, action: #selector(self.handleRetakeButtonTapped), for: .touchUpInside)
         return button
@@ -253,6 +254,7 @@ class RecordConfirmViewController: UIViewController {
     @objc func handleRetakeButtonTapped() {
         let recordViewController = RecordViewController()
         recordViewController.isHeroEnabled = true
+        recordViewController.delegate = self.delegateForRecordViewController
         
         var newViewControllers = self.navigationController?.viewControllers
         newViewControllers?.removeLast()

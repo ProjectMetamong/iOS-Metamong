@@ -14,13 +14,13 @@ class UploadViewModel {
     let title = BehaviorRelay<String>(value: "")
     let creator = BehaviorRelay<String>(value: "")
     let difficulty = BehaviorRelay<String>(value: "")
-    let length = BehaviorRelay<String>(value: "")
+    let length = BehaviorRelay<Int?>(value: nil)
     let description = BehaviorRelay<String>(value: "")
     
     var isUploadButtonActive: Observable<Bool> {
-        return Observable.combineLatest(thumbnailImage, title, creator, difficulty, description)
-            .map { thumbnailImage, title, creator, difficulty, description in
-                return thumbnailImage != nil && title.count > 0 && creator.count > 0 && difficulty.count > 0 && description.count > 0
+        return Observable.combineLatest(thumbnailImage, title, creator, difficulty, length, description)
+            .map { thumbnailImage, title, creator, difficulty, length, description in
+                return thumbnailImage != nil && title.count > 0 && creator.count > 0 && difficulty.count > 0 && length != nil && description.count > 0
             }
     }
     

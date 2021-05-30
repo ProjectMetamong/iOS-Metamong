@@ -10,10 +10,15 @@ import AVKit
 import SnapKit
 import Vision
 
+protocol RecordViewControllerDelegate {
+    func didFisnishedRecording(length: Int)
+}
+
 class RecordViewController: UIViewController {
     
     // MARK: - Properties
     
+    var delegate: RecordViewControllerDelegate?
     private var viewModel: RecordViewModel = RecordViewModel()
     
     // Capture Session DataOutputQueues
@@ -265,11 +270,14 @@ class RecordViewController: UIViewController {
     @objc func handleStopButtonTapped() {
         if self.isRecording {
             self.captureSession.stopRunning()
-            self.audioVideoWriter?.stop(completion: {
+            guard let audioVideoWriter = self.audioVideoWriter else { return }
+            audioVideoWriter.stop(completion: {
+                self.delegate?.didFisnishedRecording(length: audioVideoWriter.recordingTime)
                 self.viewModel.poseSequence.encodeAndSave(as: "test") {
                     DispatchQueue.main.sync {
                         let recordConfirmViewController = RecordConfirmViewController()
                         recordConfirmViewController.isHeroEnabled = true
+                        recordConfirmViewController.delegateForRecordViewController = self.delegate
                         self.navigationController?.pushViewController(recordConfirmViewController, animated: true)
                     }
                 }
