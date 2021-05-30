@@ -14,8 +14,8 @@ extension Int {
         var time = ""
         
         let hours = self / 3600000
-        let minutes = self / 60000
-        let seconds = (self - (minutes * 60000)) / 1000
+        let minutes = (self - ( hours * 3600000)) / 60000
+        let seconds = (self - ( hours * 3600000) - (minutes * 60000)) / 1000
         
         if forStopWatch {
             time = String(format: " %02d:%02d:%02d ", hours, minutes, seconds)
