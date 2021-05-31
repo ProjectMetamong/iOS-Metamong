@@ -9,6 +9,9 @@ import UIKit
 import AVKit
 import SnapKit
 import Vision
+import RxSwift
+import RxRelay
+import RxCocoa
 
 class ExerciseCamViewController: UIViewController {
     
@@ -25,10 +28,13 @@ class ExerciseCamViewController: UIViewController {
     private var referencePoseEdgePaths = UIBezierPath()
     private var referencePosePointPaths = UIBezierPath()
     private var bodyPoseRequest = VNDetectHumanBodyPoseRequest()
+    private var recordedPoseVector: [Float?]? = nil
     
     // Evaluation Time Related
     private var evaluationStartTime: Int64 = Date().toMilliSeconds
     private var remainingReadyTime: Int = 6
+    
+    private var disposeBag: DisposeBag = DisposeBag()
     
     lazy var captureSession: AVCaptureSession = {
         let session = AVCaptureSession()
@@ -142,7 +148,7 @@ class ExerciseCamViewController: UIViewController {
     var scoreLabel: UILabel = {
         let label = UILabel()
         label.text = ""
-        label.font = UIFont.italicSystemFont(ofSize: 60)
+        label.font = UIFont.italicSystemFont(ofSize: 120)
         label.textColor = .white
         return label
     }()
@@ -185,6 +191,7 @@ class ExerciseCamViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
+        self.bindUI()
         self.displayInitialReferencePose()
     }
     
@@ -246,6 +253,16 @@ class ExerciseCamViewController: UIViewController {
         }
     }
     
+    func bindUI() {
+        self.viewModel.currentScore
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { score in
+                guard let score = score else { return }
+                self.scoreLabel.text = "\(score)"
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
     func displayUserPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
         // Removes old points and edges
         self.userPoseEdgePaths.removeAllPoints()
@@ -304,6 +321,10 @@ class ExerciseCamViewController: UIViewController {
         CATransaction.commit()
     }
     
+    func displayScore(similarity: Float) {
+        self.viewModel.appendScore(similarity: similarity)
+    }
+    
     func displayInitialReferencePose() {
         guard let codablePose = self.viewModel.poseSequence.poses[self.viewModel.poseSequence.initialPoseTime] else { return }
         let initialBody = Pose(from: codablePose)
@@ -320,6 +341,8 @@ class ExerciseCamViewController: UIViewController {
         let time = Int(Date().toMilliSeconds - self.evaluationStartTime)
         if let codablePose = self.viewModel.poseSequence.poses[time] {
             let recordedBody = Pose(from: codablePose)
+            self.recordedPoseVector = recordedBody.buildPoseVector()
+            
             recordedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
         }
     }
@@ -348,7 +371,7 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
         try? handler.perform([bodyPoseRequest])
         
         guard let observation = bodyPoseRequest.results?.first else { return }
-        let observedBody = Pose(observed: observation)
+        let observedBody = Pose(observed: observation, another: self.recordedPoseVector, completion: self.displayScore(similarity:))
         _ = startStandByCountDownTrigger
         
         // Display user body pose

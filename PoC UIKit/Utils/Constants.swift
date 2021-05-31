@@ -65,3 +65,5 @@ let referencePoseStrokeColor: CGColor = #colorLiteral(red: 0, green: 0.562842249
 let referencePosePointColor: CGColor = #colorLiteral(red: 1, green: 0.5781051517, blue: 0, alpha: 1)
 
 let difficulties = ["초급", "중급", "고급"]
+
+let averageScoreWindowSize = 100
