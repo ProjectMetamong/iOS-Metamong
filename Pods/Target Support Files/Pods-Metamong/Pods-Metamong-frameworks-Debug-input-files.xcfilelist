@@ -1,0 +1,11 @@
+${PODS_ROOT}/Target Support Files/Pods-Metamong/Pods-Metamong-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AWSCognito/AWSCognito.framework
+${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework
+${BUILT_PRODUCTS_DIR}/AWSS3/AWSS3.framework
+${BUILT_PRODUCTS_DIR}/Hero/Hero.framework
+${BUILT_PRODUCTS_DIR}/Nuke/Nuke.framework
+${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework
+${BUILT_PRODUCTS_DIR}/RxGesture/RxGesture.framework
+${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework
+${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework
+${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework
