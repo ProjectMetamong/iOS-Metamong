@@ -13,10 +13,16 @@ class ExerciseCamViewModel {
     var scores: [Int] = []
     var scoresPointerFrom: Int = 0
     var scoresPointerTo: Int = 0
+    let currentScore = BehaviorRelay<Int?>(value: nil)
+    
     var currentAverageScoreWindowSize: Int {
         self.scoresPointerTo - self.scoresPointerFrom
     }
-    let currentScore = BehaviorRelay<Int?>(value: nil)
+    
+    var averageScore: Int {
+        return Int(self.scores.reduce(0, +) / self.scores.count)
+    }
+    
     
     func appendScore(similarity: Float) {
         var score: Int = 0
@@ -32,9 +38,5 @@ class ExerciseCamViewModel {
         self.scoresPointerTo += 1
         self.scoresPointerFrom += self.scoresPointerTo > averageScoreWindowSize ? 1 : 0
         self.currentScore.accept(Int(self.scores.suffix(self.currentAverageScoreWindowSize).reduce(0, +) / self.currentAverageScoreWindowSize))
-    }
-    
-    func getAverageScore() -> Int {
-        return Int(self.scores.reduce(0, +) / self.scores.count)
     }
 }

@@ -36,6 +36,7 @@ class ExerciseCamViewController: UIViewController {
     private var remainingReadyTime: Int = 6
     private var latestCapturedTime: Int64? = nil
     private var isEvaluating: Bool = false
+    var timeObserver: Any?
     
     private var disposeBag: DisposeBag = DisposeBag()
     
@@ -60,6 +61,36 @@ class ExerciseCamViewController: UIViewController {
         session.commitConfiguration()
         
         return session
+    }()
+    
+    lazy var referenceVideo: AVPlayer = {
+        let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("test.mov")
+        let player = AVPlayer(url: fileUrl!)
+        
+        self.timeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
+            if self.referenceVideo.currentItem?.status == .readyToPlay {
+                let duration = CMTimeGetSeconds((self.referenceVideo.currentItem?.asset.duration)!)
+                let currentTime = CMTimeGetSeconds((self.referenceVideo.currentTime()))
+                let progress = Float(currentTime / duration) * 100
+                self.progressBar.value = progress
+            }
+        }
+        
+        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { [weak self] _ in
+            self?.evaluationFinished()
+        }
+
+        return player
+    }()
+    
+    lazy var referenceVideoLayer: AVPlayerLayer = {
+        let layer = AVPlayerLayer(player: self.referenceVideo)
+        layer.isHidden = true
+        
+        layer.frame = view.bounds
+        layer.videoGravity = .resizeAspectFill
+        return layer
     }()
     
     lazy var captureLayer: AVCaptureVideoPreviewLayer = {
@@ -209,6 +240,9 @@ class ExerciseCamViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         self.captureSession.stopRunning()
+        self.referenceVideo.pause()
+        self.referenceVideo.removeTimeObserver(self.timeObserver!)
+        self.timeObserver = nil
         self.referenceDisplayTimer.invalidate()
     }
     
@@ -216,6 +250,7 @@ class ExerciseCamViewController: UIViewController {
     
     func configureUI() {
         self.view.layer.addSublayer(self.captureLayer)
+        self.view.layer.addSublayer(self.referenceVideoLayer)
         self.view.layer.addSublayer(self.overlayLayer)
         self.view.addSubview(self.stopButton)
         self.view.addSubview(self.progressBar)
@@ -360,6 +395,12 @@ class ExerciseCamViewController: UIViewController {
         initialBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
     }
     
+    func evaluationFinished() {
+        let resultViewController = ResultViewController()
+        resultViewController.viewModel = ResultViewModel(score: self.viewModel.averageScore)
+        self.navigationController?.pushViewController(resultViewController, animated: true)
+    }
+    
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
@@ -394,6 +435,7 @@ class ExerciseCamViewController: UIViewController {
             self.referenceDisplayTimer.fire()
             self.standByTimer.invalidate()
             self.isEvaluating = true
+            self.referenceVideo.play()
         }
     }
 }
