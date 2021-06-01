@@ -16,6 +16,7 @@ class AVWriter : NSObject {
     
     var delegate: AVWriterDelegate?
     
+    private var fileName: String
     private var assetWriter: AVAssetWriter!
     private var videoInput: AVAssetWriterInput!
     private var audioInput: AVAssetWriterInput!
@@ -23,8 +24,9 @@ class AVWriter : NSObject {
     private(set) var recordingTime: Int = 0
     
     init(height: Int, width: Int, channels: Int, samples: Float64, saveAs fileName: String){
+        self.fileName = fileName
         guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-        let fileUrl = documentDirectoryUrl.appendingPathComponent("\(fileName).mov")
+        let fileUrl = documentDirectoryUrl.appendingPathComponent("\(self.fileName).mov")
         try? FileManager.default.removeItem(at: fileUrl)
         assetWriter = try? AVAssetWriter(outputURL: fileUrl, fileType: AVFileType.mov)
         
@@ -47,7 +49,36 @@ class AVWriter : NSObject {
     }
     
     func stop(completion: @escaping (() -> Void)) {
-        self.assetWriter?.finishWriting(completionHandler: completion)
+        if self.assetWriter.status == .writing {
+            self.assetWriter?.finishWriting(completionHandler: {
+                completion()
+            })
+        }
+    }
+    
+    func cropAndSave(cutoffLength: Float, isSucceed: @escaping ((Bool) -> Void), completion: @escaping (() -> Void)) {
+        guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let sourceUrl = documentDirectoryUrl.appendingPathComponent("\(self.fileName).mov")
+        let asset = AVAsset(url: sourceUrl)
+        let length = Float(asset.duration.value) / Float(asset.duration.timescale)
+        let endTime = Double(length - cutoffLength)
+        
+        if endTime > 0 {
+            isSucceed(true)
+            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let croppedUrl = documentDirectoryUrl.appendingPathComponent("\(self.fileName).mov")
+            try? FileManager.default.removeItem(at: croppedUrl)
+
+            let timeRange = CMTimeRange(start: CMTime(seconds: 0, preferredTimescale: 1000), end: CMTime(seconds: endTime, preferredTimescale: 1000))
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {return}
+            exportSession.outputURL = croppedUrl
+            exportSession.outputFileType = .mov
+            exportSession.timeRange = timeRange
+            exportSession.exportAsynchronously(completionHandler: completion)
+        } else {
+            isSucceed(false)
+            completion()
+        }
     }
     
     func write(sampleBuffer: CMSampleBuffer, isVideoData: Bool){

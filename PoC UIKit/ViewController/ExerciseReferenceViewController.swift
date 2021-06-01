@@ -24,6 +24,7 @@ class ExerciseReferenceViewController: UIViewController {
     
     // Display Time Related
     private var displayStartTime: Int64 = Date().toMilliSeconds
+    private var lastRecordedPoseTime: Int? = nil
     var timeObserver: Any?
     
     var disposeBag: DisposeBag = DisposeBag()
@@ -248,6 +249,19 @@ class ExerciseReferenceViewController: UIViewController {
         CATransaction.commit()
     }
     
+    func eraseOldReferencePose() {
+        // Removes old points and edges
+        self.referencePoseEdgePaths.removeAllPoints()
+        self.referencePosePointPaths.removeAllPoints()
+        
+        // Commit new edges and points
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.referencePoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
+        self.referencePosePointLayer.path = self.referencePosePointPaths.cgPath
+        CATransaction.commit()
+    }
+    
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
@@ -264,10 +278,16 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     @objc func displayReference() {
-        let time = Int(Date().toMilliSeconds - self.displayStartTime)
-        if let codablePose = self.viewModel.poseSequence.poses[time] {
+        let currentTime = Int(Date().toMilliSeconds - self.displayStartTime)
+        if let codablePose = self.viewModel.poseSequence.poses[currentTime] {
+            self.lastRecordedPoseTime = currentTime
             let recordedBody = Pose(from: codablePose)
             recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        } else {
+            guard let lastRecrodedPoseTime = self.lastRecordedPoseTime else { return }
+            if lastRecrodedPoseTime < currentTime - 1000 {
+                self.eraseOldReferencePose()
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ class RecordViewController: UIViewController {
     // Recording Time Related
     private var recordingStartTime: Int64 = Date().toMilliSeconds
     private var remainingReadyTime: Int = 6
+    private var latestCapturedTime: Int64? = nil
     private var isRecording: Bool = false
     
     // Video/Audio File Related
@@ -265,6 +266,41 @@ class RecordViewController: UIViewController {
         })
     }
     
+    func stoppedByDisappearing() {
+        self.captureSession.stopRunning()
+        guard let audioVideoWriter = self.audioVideoWriter else { return }
+        audioVideoWriter.stop(completion: {
+            self.delegate?.didFisnishedRecording(length: audioVideoWriter.recordingTime)
+            audioVideoWriter.cropAndSave(cutoffLength: 5) { isSucceed in
+                self.delegate?.didFisnishedRecording(length: audioVideoWriter.recordingTime - (isSucceed ? 5000 : 0))
+            } completion: {
+                self.viewModel.poseSequence.encodeAndSave(as: "test") {
+                    DispatchQueue.main.sync {
+                        let recordConfirmViewController = RecordConfirmViewController()
+                        recordConfirmViewController.isHeroEnabled = true
+                        recordConfirmViewController.delegateForRecordViewController = self.delegate
+                        self.navigationController?.pushViewController(recordConfirmViewController, animated: true)
+                    }
+                }
+            }
+        })
+    }
+    
+    func eraseOldPose() {
+        DispatchQueue.main.sync {
+            // Removes old points and edges
+            self.userPoseEdgePaths.removeAllPoints()
+            self.userPosePointPaths.removeAllPoints()
+            
+            // Commit new edges and points
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            self.userPoseEdgeLayer.path = self.userPoseEdgePaths.cgPath
+            self.userPosePointLayer.path = self.userPosePointPaths.cgPath
+            CATransaction.commit()
+        }
+    }
+    
     // MARK: - Actions
     
     @objc func handleStopButtonTapped() {
@@ -296,6 +332,7 @@ class RecordViewController: UIViewController {
             self.standByLabel.isHidden = true
             self.standByTimer.invalidate()
             self.recordingStartTime = Date().toMilliSeconds
+            self.latestCapturedTime = self.recordingStartTime
             self.animateRecordingTimeLabel()
             self.isRecording = true
         }
@@ -306,8 +343,18 @@ class RecordViewController: UIViewController {
 
 extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        // Video/Audio recording
         
+        // Clear old pose or stop recording based on latest pose captured dtime
+        if let latestCapturedTime = self.latestCapturedTime {
+            let currentTime = Date().toMilliSeconds
+            if latestCapturedTime < currentTime - 3000 {
+                self.stoppedByDisappearing()
+            } else if latestCapturedTime < currentTime - 1000 {
+                self.eraseOldPose()
+            }
+        }
+        
+        // Video/Audio recording
         if isRecording {
             let isVideoData = output is AVCaptureVideoDataOutput
             if self.audioVideoWriter == nil && !isVideoData{
@@ -336,11 +383,13 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AV
     
         // User body pose recording
         if self.isRecording {
-            let currentTime = Int(Date().toMilliSeconds - self.recordingStartTime)
+            self.latestCapturedTime = Date().toMilliSeconds
+            guard let latestCapturedTime = self.latestCapturedTime else { return }
+            let capturedTime = Int(latestCapturedTime - self.recordingStartTime)
             if self.viewModel.poseSequence.initialPoseTime == -1 {
-                self.viewModel.poseSequence.initialPoseTime = currentTime
+                self.viewModel.poseSequence.initialPoseTime = capturedTime
             }
-            self.viewModel.poseSequence.poses[currentTime] = CodablePose(from: observedBody)
+            self.viewModel.poseSequence.poses[capturedTime] = CodablePose(from: observedBody)
         }
     }
 }

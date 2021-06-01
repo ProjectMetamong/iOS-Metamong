@@ -32,7 +32,10 @@ class ExerciseCamViewController: UIViewController {
     
     // Evaluation Time Related
     private var evaluationStartTime: Int64 = Date().toMilliSeconds
+    private var lastRecordedPoseTime: Int? = nil
     private var remainingReadyTime: Int = 6
+    private var latestCapturedTime: Int64? = nil
+    private var isEvaluating: Bool = false
     
     private var disposeBag: DisposeBag = DisposeBag()
     
@@ -292,6 +295,19 @@ class ExerciseCamViewController: UIViewController {
         CATransaction.commit()
     }
     
+    func eraseOldUserPose() {
+        // Removes old points and edges
+        self.userPoseEdgePaths.removeAllPoints()
+        self.userPosePointPaths.removeAllPoints()
+        
+        // Commit new edges and points
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.userPoseEdgeLayer.path = self.userPoseEdgePaths.cgPath
+        self.userPosePointLayer.path = self.userPosePointPaths.cgPath
+        CATransaction.commit()
+    }
+    
     func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
         // Removes old points and edges
         self.referencePoseEdgePaths.removeAllPoints()
@@ -321,6 +337,19 @@ class ExerciseCamViewController: UIViewController {
         CATransaction.commit()
     }
     
+    func eraseOldReferencePose() {
+        // Removes old points and edges
+        self.referencePoseEdgePaths.removeAllPoints()
+        self.referencePosePointPaths.removeAllPoints()
+        
+        // Commit new edges and points
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.referencePoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
+        self.referencePosePointLayer.path = self.referencePosePointPaths.cgPath
+        CATransaction.commit()
+    }
+    
     func displayScore(similarity: Float) {
         self.viewModel.appendScore(similarity: similarity)
     }
@@ -338,12 +367,18 @@ class ExerciseCamViewController: UIViewController {
     }
     
     @objc func displayReference() {
-        let time = Int(Date().toMilliSeconds - self.evaluationStartTime)
-        if let codablePose = self.viewModel.poseSequence.poses[time] {
+        let currentTime = Int(Date().toMilliSeconds - self.evaluationStartTime)
+        if let codablePose = self.viewModel.poseSequence.poses[currentTime] {
+            self.lastRecordedPoseTime = currentTime
             let recordedBody = Pose(from: codablePose)
             self.recordedPoseVector = recordedBody.buildPoseVector()
-            
             recordedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        } else {
+            guard let lastRecrodedPoseTime = self.lastRecordedPoseTime else { return }
+            if lastRecrodedPoseTime < currentTime - 1000 {
+                self.eraseOldReferencePose()
+                self.recordedPoseVector = nil
+            }
         }
     }
     
@@ -355,8 +390,10 @@ class ExerciseCamViewController: UIViewController {
             self.standByBackground.isHidden = true
             self.standByLabel.isHidden = true
             self.evaluationStartTime = Date().toMilliSeconds
+            self.latestCapturedTime = self.evaluationStartTime
             self.referenceDisplayTimer.fire()
             self.standByTimer.invalidate()
+            self.isEvaluating = true
         }
     }
 }
@@ -365,6 +402,17 @@ class ExerciseCamViewController: UIViewController {
 
 extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        // Clear old pose or stop recording based on latest pose captured dtime
+        if let latestCapturedTime = self.latestCapturedTime {
+            let currentTime = Date().toMilliSeconds
+            if latestCapturedTime < currentTime - 3000 {
+                DispatchQueue.main.sync {
+                    self.navigationController?.popToViewController(ofClass: DetailViewController.self)
+                }
+            } else if latestCapturedTime < currentTime - 1000 {
+                self.eraseOldUserPose()
+            }
+        }
         
         // User body pose estimation
         let handler = VNImageRequestHandler(cmSampleBuffer: sampleBuffer, orientation: .up, options: [:])
@@ -377,6 +425,10 @@ extension ExerciseCamViewController: AVCaptureVideoDataOutputSampleBufferDelegat
         // Display user body pose
         DispatchQueue.main.sync {
             observedBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayUserPose(points:edges:))
+        }
+        
+        if self.isEvaluating {
+            self.latestCapturedTime = Date().toMilliSeconds
         }
     }
 }

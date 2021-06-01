@@ -20,11 +20,12 @@ class RecordConfirmViewController: UIViewController {
     private let viewModel: RecordConfirmViewModel = RecordConfirmViewModel()
     
     // User Pose Related
-    private var recordPoseEdgePaths = UIBezierPath()
-    private var recordPosePointPaths = UIBezierPath()
+    private var referencePoseEdgePaths = UIBezierPath()
+    private var referencePosePointPaths = UIBezierPath()
     
     // Display Time Related
     private var displayStartTime: Int64 = Date().toMilliSeconds
+    private var lastRecordedPoseTime: Int? = nil
     var timeObserver: Any?
     
     var disposeBag: DisposeBag = DisposeBag()
@@ -117,8 +118,8 @@ class RecordConfirmViewController: UIViewController {
         return layer
     }()
     
-    lazy var recordDisplayTimer: Timer = {
-        let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayRecord), userInfo: nil, repeats: true)
+    lazy var referenceDisplayTimer: Timer = {
+        let timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(self.displayReference), userInfo: nil, repeats: true)
         return timer
     }()
     
@@ -177,7 +178,7 @@ class RecordConfirmViewController: UIViewController {
         self.recordVideo.pause()
         self.recordVideo.removeTimeObserver(self.timeObserver!)
         self.timeObserver = nil
-        self.recordDisplayTimer.invalidate()
+        self.referenceDisplayTimer.invalidate()
     }
     
     // MARK: - Helpers
@@ -211,10 +212,19 @@ class RecordConfirmViewController: UIViewController {
         }
     }
     
-    func displayRecordPose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
+    func bindUI() {
+        self.recordVideoLayer.rx.observe(AVPlayerLayer.self, #keyPath(AVPlayerLayer.isReadyForDisplay))
+            .subscribe(onNext: { _ in
+                self.displayStartTime = Date().toMilliSeconds
+                self.referenceDisplayTimer.fire()
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+    func displayReferencePose(points : [VNHumanBodyPoseObservation.JointName : CGPoint?], edges: [Edge]) {
         // Removes old points and edges
-        self.recordPoseEdgePaths.removeAllPoints()
-        self.recordPosePointPaths.removeAllPoints()
+        self.referencePoseEdgePaths.removeAllPoints()
+        self.referencePosePointPaths.removeAllPoints()
         
         // Add new edges
         for edge in edges {
@@ -222,31 +232,35 @@ class RecordConfirmViewController: UIViewController {
             let path = UIBezierPath()
             path.move(to: from)
             path.addLine(to: to)
-            self.recordPoseEdgePaths.append(path)
+            self.referencePoseEdgePaths.append(path)
         }
         
         // Add new points
         for (_, point) in points {
             guard let point = point else { continue }
             let path = UIBezierPath(center: point, radius: posePointRadius)
-            self.recordPosePointPaths.append(path)
+            self.referencePosePointPaths.append(path)
         }
         
         // Commit new edges and points
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        self.recordPoseEdgeLayer.path = self.recordPoseEdgePaths.cgPath
-        self.recordPosePointLayer.path = self.recordPosePointPaths.cgPath
+        self.recordPoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
+        self.recordPosePointLayer.path = self.referencePosePointPaths.cgPath
         CATransaction.commit()
     }
     
-    func bindUI() {
-        self.recordVideoLayer.rx.observe(AVPlayerLayer.self, #keyPath(AVPlayerLayer.isReadyForDisplay))
-            .subscribe(onNext: { _ in
-                self.displayStartTime = Date().toMilliSeconds
-                self.recordDisplayTimer.fire()
-            })
-            .disposed(by: self.disposeBag)
+    func eraseOldReferencePose() {
+        // Removes old points and edges
+        self.referencePoseEdgePaths.removeAllPoints()
+        self.referencePosePointPaths.removeAllPoints()
+        
+        // Commit new edges and points
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        self.recordPoseEdgeLayer.path = self.referencePoseEdgePaths.cgPath
+        self.recordPosePointLayer.path = self.referencePosePointPaths.cgPath
+        CATransaction.commit()
     }
     
     // MARK: - Actions
@@ -267,11 +281,17 @@ class RecordConfirmViewController: UIViewController {
         self.navigationController?.popToViewController(ofClass: UploadViewController.self)
     }
     
-    @objc func displayRecord() {
-        let time = Int(Date().toMilliSeconds - self.displayStartTime)
-        if let codablePose = self.viewModel.poseSequence.poses[time] {
+    @objc func displayReference() {
+        let currentTime = Int(Date().toMilliSeconds - self.displayStartTime)
+        if let codablePose = self.viewModel.poseSequence.poses[currentTime] {
+            self.lastRecordedPoseTime = currentTime
             let recordedBody = Pose(from: codablePose)
-            recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayRecordPose(points:edges:))
+            recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
+        } else {
+            guard let lastRecrodedPoseTime = self.lastRecordedPoseTime else { return }
+            if lastRecrodedPoseTime < currentTime - 1000 {
+                self.eraseOldReferencePose()
+            }
         }
     }
 }
