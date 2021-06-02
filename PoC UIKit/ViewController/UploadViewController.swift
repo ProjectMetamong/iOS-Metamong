@@ -10,6 +10,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 import RxGesture
+import JGProgressHUD
 
 class UploadViewController: UIViewController {
     // MARK: - Properties
@@ -142,6 +143,13 @@ class UploadViewController: UIViewController {
         button.addTarget(self, action: #selector(self.handleUploadButtonTapped), for: .touchUpInside)
         button.isEnabled = false
         return button
+    }()
+    
+    lazy var uploadProgressHud: JGProgressHUD = {
+        let hud = JGProgressHUD(style: .dark)
+        hud.vibrancyEnabled = true
+        hud.indicatorView = JGProgressHUDPieIndicatorView()
+        return hud
     }()
     
     // MARK: - Lifecycles
@@ -333,6 +341,45 @@ class UploadViewController: UIViewController {
             .map { $0 ? 1 : 0.5 }
             .bind(to: self.uploadButton.rx.alpha)
             .disposed(by: self.disposeBag)
+        
+        self.viewModel.progress
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: {
+                self.uploadProgressHud.progress = Float($0)
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.progress
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: {
+                self.uploadProgressHud.progress = Float($0)
+                self.uploadProgressHud.detailTextLabel.text = String(format: "%.2f", ($0 * 100)) + "%"
+            })
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.progressHudDescription
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: {
+                self.uploadProgressHud.textLabel.text = $0
+            })
+            .disposed(by: self.disposeBag)
+    }
+    
+    func showHud() {
+        self.uploadProgressHud.indicatorView = JGProgressHUDPieIndicatorView()
+        self.uploadProgressHud.show(in: self.view)
+    }
+    
+    
+    func dismissHud() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+            UIView.animate(withDuration: 0.1, animations: {
+                self.uploadProgressHud.textLabel.text = "업로드 완료!"
+                self.uploadProgressHud.detailTextLabel.text = nil
+                self.uploadProgressHud.indicatorView = JGProgressHUDSuccessIndicatorView()
+            })
+            self.uploadProgressHud.dismiss(afterDelay: 1.0)
+        }
     }
     
     // MARK: - Actions
@@ -346,8 +393,8 @@ class UploadViewController: UIViewController {
     }
     
     @objc func handleUploadButtonTapped() {
-        print("업로드")
-        self.viewModel.upload()
+        self.showHud()
+        self.viewModel.upload(completion: self.dismissHud)
     }
     
     @objc func dismissPicker() {

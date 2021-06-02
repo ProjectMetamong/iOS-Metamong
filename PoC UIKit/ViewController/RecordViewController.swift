@@ -309,7 +309,7 @@ class RecordViewController: UIViewController {
             guard let audioVideoWriter = self.audioVideoWriter else { return }
             audioVideoWriter.stop(completion: {
                 self.delegate?.didFisnishedRecording(length: audioVideoWriter.recordingTime)
-                self.viewModel.poseSequence.encodeAndSave(as: "test") {
+                self.viewModel.poseSequence.encodeAndSave(as: "temp") {
                     DispatchQueue.main.sync {
                         let recordConfirmViewController = RecordConfirmViewController()
                         recordConfirmViewController.isHeroEnabled = true

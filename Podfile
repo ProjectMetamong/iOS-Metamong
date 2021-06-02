@@ -15,5 +15,6 @@ target 'Metamong' do
   pod 'AWSCore'
   pod 'AWSCognito'
   pod 'AWSS3'
+  pod 'JGProgressHUD'
 
 end

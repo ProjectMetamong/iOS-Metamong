@@ -87,4 +87,7 @@ let AWSS3BucketName = ""
 
 // MARK: - API Related
 
-let APIPostUrl = ""
+let APIBaseUrl = ""
+let APICreate = ""
+let APIGet = ""
+let APISearch = ""
