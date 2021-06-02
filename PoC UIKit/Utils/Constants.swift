@@ -8,6 +8,9 @@
 import UIKit
 import Nuke
 import Vision
+import AWSS3
+
+// MARK: - UI Related
 
 let backgroundColor = CGColor(red: 252 / 255, green: 247 / 255, blue: 227 / 255, alpha: 1.0)
 let buttonColor = CGColor(red: 250 / 255, green: 136 / 255, blue: 136 / 255, alpha: 1.0)
@@ -16,9 +19,13 @@ let labelBackgroundColor = CGColor(red: 0, green: 0, blue: 0, alpha: 0.5)
 
 let cornerRadius = CGFloat(20)
 
+// MARK: - Nuke Settings
+
 let nukeOptions = ImageLoadingOptions(
     transition: .fadeIn(duration: 0.45)
 )
+
+// MARK: - Pose Related
 
 let jointNames: [VNHumanBodyPoseObservation.JointName] = [.leftAnkle,
                                                           .leftKnee,
@@ -64,6 +71,20 @@ let userPosePointColor: CGColor = #colorLiteral(red: 0, green: 0.9810667634, blu
 let referencePoseStrokeColor: CGColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 1)
 let referencePosePointColor: CGColor = #colorLiteral(red: 1, green: 0.5781051517, blue: 0, alpha: 1)
 
+// MARK: - Exercise Related
+
 let difficulties = ["초급", "중급", "고급"]
 
+// MARK: - Evaluation Related
+
 let averageScoreWindowSize = 100
+
+// MARK: - AWSS3 Related
+
+let AWSS3Region = AWSRegionType.APNortheast2
+let AWSS3PoolId = ""
+let AWSS3BucketName = ""
+
+// MARK: - API Related
+
+let APIPostUrl = ""

@@ -8,9 +8,12 @@
 import Foundation
 import RxRelay
 import RxSwift
+import AWSCore
+import AWSCognito
+import AWSS3
 
 class UploadViewModel {
-    var thumbnailImage = BehaviorRelay<UIImage?>(value: nil)
+    let thumbnailImage = BehaviorRelay<UIImage?>(value: nil)
     let title = BehaviorRelay<String>(value: "")
     let creator = BehaviorRelay<String>(value: "")
     let difficulty = BehaviorRelay<String>(value: "")
@@ -27,18 +30,28 @@ class UploadViewModel {
     func upload() {
         // todo : 입력된 정보들로 exercise 객체를 만든다.
         // id가 생성된다.
-        
-        // todo : 선택된 사진을 업로드한다.
-        // 선택된 사진을 id.jpeg로 변경하여 업로드.
-        // image.jpegData(compressionQuality: 0.75) 이용
-        
-        // todo : 촬영된 영상을 업로드한다.
-        // 일단 temp.mov로 저장되어있는것을 id.mov로 변경하여 업로드.
-        
-        // todo : 촬영된 포즈정보를 업로드한다.
-        // 일단 temp.json으로 저장되어있는것을 id.json으로 변경하여 업로드.
-        
-        // todo : exercise 정보를 서버에 업로드한다.
-    
+        APIService.uploadExercise(title: self.title.value, difficulty: self.difficulty.value, creator: self.creator.value, videoLength: self.length.value!, description: self.description.value) { exerciseId in
+            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let videoUrl = documentDirectoryUrl.appendingPathComponent("temp.mov")
+            let poseUrl = documentDirectoryUrl.appendingPathComponent("temp.json")
+            
+            // todo : 선택된 사진을 업로드한다.
+            AWSS3Manager.shared.uploadImage(image: self.thumbnailImage.value!, newName: exerciseId, compressionQuality: 0.75) { progress in
+                print(progress)
+            } completion: { url, error in
+            }
+            
+            // todo : 촬영된 영상을 업로드한다.
+            AWSS3Manager.shared.uploadVideo(videoUrl: videoUrl, newName: exerciseId) { progress in
+                print(progress)
+            } completion: { link, error in
+            }
+            
+            // todo : 촬영된 포즈정보를 업로드한다.
+            AWSS3Manager.shared.uploadOtherFile(fileUrl: poseUrl, newName: exerciseId, conentType: ".json") { progress in
+                print(progress)
+            } completion: { link, error in
+            }
+        }
     }
 }

@@ -8,5 +8,5 @@
 import Foundation
 
 class RecordConfirmViewModel {
-    var poseSequence: PoseSequence = PoseSequence(from: "test")
+    var poseSequence: PoseSequence = PoseSequence(from: "temp")
 }

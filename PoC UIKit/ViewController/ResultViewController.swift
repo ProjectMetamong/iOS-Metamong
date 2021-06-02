@@ -81,6 +81,7 @@ class ResultViewController: UIViewController {
         self.navigationController?.popToViewController(ofClass: DetailViewController.self, animated: true)
     }
 }
+
 // MARK: - Preview
 
 #if DEBUG

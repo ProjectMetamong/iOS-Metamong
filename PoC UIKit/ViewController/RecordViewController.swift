@@ -274,7 +274,7 @@ class RecordViewController: UIViewController {
             audioVideoWriter.cropAndSave(cutoffLength: 5) { isSucceed in
                 self.delegate?.didFisnishedRecording(length: audioVideoWriter.recordingTime - (isSucceed ? 5000 : 0))
             } completion: {
-                self.viewModel.poseSequence.encodeAndSave(as: "test") {
+                self.viewModel.poseSequence.encodeAndSave(as: "temp") {
                     DispatchQueue.main.sync {
                         let recordConfirmViewController = RecordConfirmViewController()
                         recordConfirmViewController.isHeroEnabled = true
@@ -362,7 +362,7 @@ extension RecordViewController: AVCaptureVideoDataOutputSampleBufferDelegate, AV
                 guard let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(fmt) else { return }
                 let channels = Int(asbd.pointee.mChannelsPerFrame)
                 let samples = asbd.pointee.mSampleRate
-                self.audioVideoWriter = AVWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, saveAs: "test")
+                self.audioVideoWriter = AVWriter(height: self.videoHeight, width: self.videoWidth, channels: channels, samples: samples, saveAs: "temp")
                 self.audioVideoWriter?.delegate = self
             }
             audioVideoWriter?.write(sampleBuffer: sampleBuffer, isVideoData: isVideoData)

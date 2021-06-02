@@ -70,3 +70,9 @@ extension UIBezierPath {
         self.init(ovalIn: CGRect(x: center.x - radius, y: center.y - radius, width: 2 * radius, height: 2 * radius))
     }
 }
+
+extension URL {
+    var extensionString: String {
+        URL(fileURLWithPath: self.absoluteString).pathExtension
+    }
+}

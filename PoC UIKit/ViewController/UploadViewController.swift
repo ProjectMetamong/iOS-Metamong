@@ -176,7 +176,6 @@ class UploadViewController: UIViewController {
         self.view.addSubview(self.descriptionTextView)
         self.view.addSubview(self.uploadButton)
         
-        
         self.view.bringSubviewToFront(self.titleLabelOverThumbnail)
         self.view.bringSubviewToFront(self.difficultyLabelOverThumbnail)
         self.view.bringSubviewToFront(self.timeLabelOverThumbnail)
@@ -406,3 +405,32 @@ extension UploadViewController: RecordViewControllerDelegate {
         self.viewModel.length.accept(length)
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+
+import SwiftUI
+
+struct UploadViewControllerRepresentable: UIViewControllerRepresentable {
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+    }
+    
+    @available(iOS 13.0.0, *)
+    func makeUIViewController(context: Context) -> some UIViewController {
+        let vc = UploadViewController()
+        
+        return vc
+    }
+}
+
+@available(iOS 13.0, *)
+struct UploadViewControllerRepresentablePreview: PreviewProvider {
+    static var previews: some View {
+        UploadViewControllerRepresentable()
+            .preferredColorScheme(.light)
+            .previewDevice("iPhone 11")
+    }
+}
+
+#endif

@@ -53,7 +53,7 @@ class ExerciseReferenceViewController: UIViewController {
     
     lazy var referenceVideo: AVPlayer = {
         let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("test.mov")
+        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("temp.mov")
         let player = AVPlayer(url: fileUrl!)
         
         self.timeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in

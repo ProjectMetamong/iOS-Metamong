@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AWSS3
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        self.initializeS3()
         return true
     }
 
@@ -31,6 +33,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
+    func initializeS3() {
+//        let poolId = "ap-northeast-2:a6efc9f8-3dc8-48cc-801d-8334bb6752c8"
+//        let credentialProvider = AWSCognitoCredentialsProvider(regionType: AWSRegionType.APNortheast2, identityPoolId: poolId)
+//        let configuration = AWSServiceConfiguration(region: AWSRegionType.APNortheast2, credentialsProvider: credentialProvider)
+//        AWSServiceManager.default().defaultServiceConfiguration = configuration
+//
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: AWSS3Region,
+           identityPoolId: AWSS3PoolId)
+        let configuration = AWSServiceConfiguration(region: AWSS3Region, credentialsProvider:credentialsProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
+    }
 
 }
-
