@@ -173,8 +173,8 @@ class DetailViewController: UIViewController {
         }
         
         guard let viewModel = self.viewModel else { return }
-        //guard let thumbnailURL = viewModel.exercise.thumbnailURL else { return }
-        //Nuke.loadImage(with: thumbnailURL, into: self.thumbnailImageView)
+        guard let thumbnailURL = URL(string: AWSS3Url + AWSS3BucketName + "/\(viewModel.exercise.id).jpeg") else { return }
+        Nuke.loadImage(with: thumbnailURL, into: self.thumbnailImageView)
         self.titleLabel.text = viewModel.exercise.title
         self.timeLabel.text = viewModel.exercise.length.msToTimeString()
         self.creatorLabel.text = viewModel.exercise.creator

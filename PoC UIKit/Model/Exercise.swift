@@ -7,20 +7,28 @@
 
 import Foundation
 
-struct Exercise {
-    let id: UUID
+struct Exercise: Decodable {
+    let id: Int
     let title: String
     let difficulty: String
     let creator: String
     let length: Int
     let description: String
     
-    init(title: String, difficulty: String, creator: String, length: Int, description: String) {
-        self.id = UUID()
-        self.title = title
-        self.difficulty = difficulty
-        self.creator = creator
-        self.length = length
-        self.description = description
+    enum CodingKeys: String, CodingKey {
+        case id = "exerciseId"
+        case title = "title"
+        case difficulty = "difficulty"
+        case creator = "creator"
+        case length = "videoLength"
+        case description = "description"
+    }
+}
+
+struct ExerciseResponseArray: Decodable {
+    var exercises: [Exercise]
+    
+    enum CodingKeys: String, CodingKey {
+        case exercises = "data"
     }
 }

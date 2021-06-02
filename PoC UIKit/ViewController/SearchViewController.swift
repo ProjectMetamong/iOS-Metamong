@@ -8,6 +8,8 @@
 import UIKit
 import Hero
 import Nuke
+import RxSwift
+import RxCocoa
 
 class SearchViewController: UIViewController {
     
@@ -15,6 +17,7 @@ class SearchViewController: UIViewController {
     let cellIdentifier = "ExerciseCell"
     let searchController = UISearchController()
     let viewModel: SearchViewModel = SearchViewModel()
+    let disposeBag: DisposeBag = DisposeBag()
     
     // MARK: - IBOutlets
     
@@ -25,9 +28,9 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureUI()
+        self.configureUI()
+        self.bindUI()
         
-        self.resultCollectionView.dataSource = self
         self.resultCollectionView.delegate = self
     }
     
@@ -52,43 +55,32 @@ class SearchViewController: UIViewController {
         self.navigationItem.searchController = self.searchController
         self.navigationController?.isHeroEnabled = true
     }
-
-    // MARK: - IBAction
-}
-
-// MARK: - UICollectionViewDataSource
-
-extension SearchViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.viewModel.exercises.count
-    }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! ExerciseCollectionViewCell
-        
-        let exercise = self.viewModel.exercises[indexPath.row]
-        
-        cell.layer.cornerRadius = cornerRadius
-        cell.layer.masksToBounds = true
-        
-        cell.titleLabel.text = exercise.title
-        cell.creatorLabel.text = exercise.creator
-        cell.difficultyLabel.text = exercise.difficulty
-        cell.timeLabel.text = exercise.length.msToTimeString()
-        
-        //guard let thumbnailURL = exercise.thumbnailURL else { return UICollectionViewCell() }
-        //Nuke.loadImage(with: thumbnailURL, into: cell.thumbnailImageView)
-        cell.thumbnailImageView.contentMode = .scaleAspectFill
-        
-        cell.titleLabel.heroID = "title_\(exercise.id)"
-        cell.creatorLabel.heroID = "creator_\(exercise.id)"
-        cell.difficultyLabel.heroID = "difficulty_\(exercise.id)"
-        cell.timeLabel.heroID = "time_\(exercise.id)"
-        cell.thumbnailImageView.heroID = "thumbnail_\(exercise.id)"
-        
-        return cell
+    func bindUI() {
+        self.viewModel.exerciseObservable
+            .bind(to: self.resultCollectionView.rx.items(cellIdentifier: self.cellIdentifier, cellType: ExerciseCollectionViewCell.self)) { index, item, cell in
+                cell.layer.cornerRadius = cornerRadius
+                cell.layer.masksToBounds = true
+                
+                cell.titleLabel.text = item.title
+                cell.creatorLabel.text = item.creator
+                cell.difficultyLabel.text = item.difficulty
+                cell.timeLabel.text = item.length.msToTimeString()
+                
+                guard let thumbnailURL = URL(string: AWSS3Url + AWSS3BucketName + "/\(item.id).jpeg") else { return }
+                Nuke.loadImage(with: thumbnailURL, into: cell.thumbnailImageView)
+                cell.thumbnailImageView.contentMode = .scaleAspectFill
+                
+                cell.titleLabel.heroID = "title_\(item.id)"
+                cell.creatorLabel.heroID = "creator_\(item.id)"
+                cell.difficultyLabel.heroID = "difficulty_\(item.id)"
+                cell.timeLabel.heroID = "time_\(item.id)"
+                cell.thumbnailImageView.heroID = "thumbnail_\(item.id)"
+            }
+            .disposed(by: self.disposeBag)
     }
 }
+
 
 // MARK: - UICollectionViewDelegateFlowLayout
 
@@ -113,7 +105,7 @@ extension SearchViewController: UICollectionViewDelegateFlowLayout {
 
 extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let exercise = self.viewModel.exercises[indexPath.row]
+        let exercise = self.viewModel.exerciseObservable.value[indexPath.row]
         let detailViewController = DetailViewController()
         detailViewController.hero.isEnabled = true
         detailViewController.viewModel = DetailViewModel(exercise: exercise)

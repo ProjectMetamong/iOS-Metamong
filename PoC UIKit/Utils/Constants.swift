@@ -84,10 +84,12 @@ let averageScoreWindowSize = 100
 let AWSS3Region = AWSRegionType.APNortheast2
 let AWSS3PoolId = ""
 let AWSS3BucketName = ""
+let AWSS3Url = ""
 
 // MARK: - API Related
 
 let APIBaseUrl = ""
+let APIGetAll = ""
 let APICreate = ""
 let APIGet = ""
 let APISearch = ""
