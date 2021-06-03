@@ -10,6 +10,7 @@ import Hero
 import Nuke
 import RxSwift
 import RxCocoa
+import SnapKit
 
 class SearchViewController: UIViewController {
     
@@ -19,9 +20,16 @@ class SearchViewController: UIViewController {
     let viewModel: SearchViewModel = SearchViewModel()
     let disposeBag: DisposeBag = DisposeBag()
     
-    // MARK: - IBOutlets
-    
-    @IBOutlet weak var resultCollectionView: UICollectionView!
+    lazy var resultCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = backgroundColor.getUIColor
+        collectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
+        collectionView.delegate = self
+        return collectionView
+    }()
     
     // MARK: - Lifecycles
 
@@ -29,10 +37,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         
         self.configureUI()
-        self.bindUI()
-        
-        self.resultCollectionView.delegate = self
-    }
+        self.bindUI()    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -43,20 +48,43 @@ class SearchViewController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
+        self.view.addSubview(self.resultCollectionView)
+        
         self.view.backgroundColor = backgroundColor.getUIColor
         self.navigationController?.navigationBar.backgroundColor = backgroundColor.getUIColor
         self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
         self.tabBarController?.tabBar.barTintColor = backgroundColor.getUIColor
-        self.resultCollectionView.backgroundColor = backgroundColor.getUIColor
-        self.resultCollectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
         
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.searchController.hidesNavigationBarDuringPresentation = false
+        
         self.navigationItem.searchController = self.searchController
         self.navigationController?.isHeroEnabled = true
+        
+        self.resultCollectionView.snp.makeConstraints {
+            $0.top.equalTo(self.view.snp.topMargin)
+            $0.bottom.equalTo(self.view.snp.bottomMargin)
+            $0.left.equalTo(self.view.snp.left)
+            $0.right.equalTo(self.view.snp.right)
+        }
     }
     
     func bindUI() {
+        self.searchController.searchBar.rx.text.orEmpty
+            .debounce(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .filter({ (text) -> Bool in
+                text != ""
+            })
+            .subscribe(onNext: { text in
+                self.resultCollectionView.setContentOffset(CGPoint(x:0,y:0), animated: false)
+                self.searchController.searchBar.endEditing(true)
+                self.searchController.isActive = false
+                self.navigationItem.title = text
+                self.viewModel.searchExercises(keyword: text)
+            })
+            .disposed(by: disposeBag)
+        
         self.viewModel.exerciseObservable
             .bind(to: self.resultCollectionView.rx.items(cellIdentifier: self.cellIdentifier, cellType: ExerciseCollectionViewCell.self)) { index, item, cell in
                 cell.layer.cornerRadius = cornerRadius
@@ -114,3 +142,4 @@ extension SearchViewController: UICollectionViewDelegate {
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
+

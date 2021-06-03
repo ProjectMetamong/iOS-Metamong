@@ -11,39 +11,17 @@
         <!--운동 검색-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="SearchViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="SearchViewController" customModule="Metamong" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="dnE-sw-aWb">
-                                <rect key="frame" x="0.0" y="140" width="414" height="673"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="OPv-mz-COA">
-                                    <size key="itemSize" width="299" height="288"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                </collectionViewFlowLayout>
-                                <cells/>
-                            </collectionView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="0bt-hz-Znb"/>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DgL-f4-LOj"/>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="M9i-0O-7GI"/>
-                            <constraint firstItem="dnE-sw-aWb" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="Q12-Vq-50O"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="운동 검색" id="FZz-Li-8r7"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="isHeroEnabled" value="YES"/>
                     </userDefinedRuntimeAttributes>
-                    <connections>
-                        <outlet property="resultCollectionView" destination="dnE-sw-aWb" id="pJQ-N9-vsZ"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -52,7 +30,7 @@
         <!--업로드-->
         <scene sceneID="g4q-DO-ZPT">
             <objects>
-                <viewController id="z0d-h9-JaP" customClass="UploadViewController" customModule="PoC_UIKit" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="z0d-h9-JaP" customClass="UploadViewController" customModule="Metamong" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Kgl-tu-RKB">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
