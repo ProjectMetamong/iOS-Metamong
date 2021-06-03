@@ -50,14 +50,19 @@ class APIService {
                 onComplete(.failure(error))
                 return
             }
-            guard let data = data else {
-                let httpResponse = response as! HTTPURLResponse
-                onComplete(.failure(NSError(domain: "no data",
-                                            code: httpResponse.statusCode,
-                                            userInfo: nil)))
+            
+            guard let data = data, let response = response as? HTTPURLResponse else {
                 return
             }
-            onComplete(.success(data))
+            
+            print(response.statusCode, terminator: " - ")
+            switch response.statusCode {
+            case 500...599:
+                print("Internal Server Error")
+            default:
+                print("OK")
+                onComplete(.success(data))
+            }
         }.resume()
     }
     
