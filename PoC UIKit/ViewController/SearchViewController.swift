@@ -15,6 +15,7 @@ import SnapKit
 class SearchViewController: UIViewController {
     
     // MARK: - Properties
+    
     let cellIdentifier = "ExerciseCell"
     let searchController = UISearchController()
     let viewModel: SearchViewModel = SearchViewModel()
@@ -28,6 +29,8 @@ class SearchViewController: UIViewController {
         collectionView.backgroundColor = backgroundColor.getUIColor
         collectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
         collectionView.delegate = self
+        collectionView.backgroundView = EmptyResultView()
+        collectionView.backgroundView?.isHidden = true
         return collectionView
     }()
     
@@ -70,6 +73,13 @@ class SearchViewController: UIViewController {
     }
     
     func bindUI() {
+        self.viewModel.exerciseObservable
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: {
+                self.resultCollectionView.backgroundView?.isHidden = $0.count != 0 ? true : false
+            })
+            .disposed(by: self.disposeBag)
+        
         self.searchController.searchBar.rx.text.orEmpty
             .debounce(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
             .distinctUntilChanged()
