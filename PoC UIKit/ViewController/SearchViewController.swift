@@ -17,7 +17,6 @@ class SearchViewController: UIViewController {
     // MARK: - Properties
     
     let cellIdentifier = "ExerciseCell"
-    let searchController = UISearchController()
     let viewModel: SearchViewModel = SearchViewModel()
     let disposeBag: DisposeBag = DisposeBag()
     
@@ -29,10 +28,27 @@ class SearchViewController: UIViewController {
         collectionView.backgroundColor = backgroundColor.getUIColor
         collectionView.register(ExerciseCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
         collectionView.delegate = self
-        collectionView.backgroundView = EmptyResultView()
+        collectionView.backgroundView = self.emptyResultView
         collectionView.backgroundView?.isHidden = true
+        collectionView.keyboardDismissMode = .onDrag
+        collectionView.refreshControl = self.refreshControl
         return collectionView
     }()
+    
+    lazy var searchController: UISearchController = {
+        let searchController = UISearchController()
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        return searchController
+    }()
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(self.refreshResults), for: .valueChanged)
+        return refreshControl
+    }()
+    
+    lazy var emptyResultView: EmptyResultView = EmptyResultView()
     
     // MARK: - Lifecycles
 
@@ -57,9 +73,6 @@ class SearchViewController: UIViewController {
         self.navigationController?.navigationBar.backgroundColor = backgroundColor.getUIColor
         self.navigationController?.navigationBar.barTintColor = backgroundColor.getUIColor
         self.tabBarController?.tabBar.barTintColor = backgroundColor.getUIColor
-        
-        self.searchController.obscuresBackgroundDuringPresentation = false
-        self.searchController.hidesNavigationBarDuringPresentation = false
         
         self.navigationItem.searchController = self.searchController
         self.navigationController?.isHeroEnabled = true
@@ -116,6 +129,13 @@ class SearchViewController: UIViewController {
                 cell.thumbnailImageView.heroID = "thumbnail_\(item.id)"
             }
             .disposed(by: self.disposeBag)
+    }
+    
+    // MARK: - Actions
+    
+    @objc func refreshResults() {
+        self.viewModel.refreshExercises()
+        self.refreshControl.endRefreshing()
     }
 }
 

@@ -32,7 +32,7 @@ class SearchViewModel {
             })
     }
     
-    func refreshGif() {
+    func refreshExercises() {
         guard let keyword = recentKeyword else { return }
         self.searchExercises(keyword: keyword)
     }
