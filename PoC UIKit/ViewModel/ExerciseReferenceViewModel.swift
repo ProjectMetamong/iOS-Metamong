@@ -8,5 +8,11 @@
 import Foundation
 
 class ExerciseReferenceViewModel {
-    var poseSequence: PoseSequence = PoseSequence(from: "temp")
+    var exerciseId: Int?
+    var poseSequence: PoseSequence?
+    
+    init(id: Int) {
+        self.exerciseId = id
+        self.poseSequence = PoseSequence(from: "\(id)")
+    }
 }

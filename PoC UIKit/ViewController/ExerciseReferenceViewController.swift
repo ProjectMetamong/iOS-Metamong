@@ -16,7 +16,7 @@ class ExerciseReferenceViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let viewModel: ExerciseReferenceViewModel = ExerciseReferenceViewModel()
+    var viewModel: ExerciseReferenceViewModel? = nil
     
     // User Pose Related
     private var referencePoseEdgePaths = UIBezierPath()
@@ -52,8 +52,9 @@ class ExerciseReferenceViewController: UIViewController {
     }()
     
     lazy var referenceVideo: AVPlayer = {
+        guard let viewModel = self.viewModel else { return AVPlayer() }
         let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("temp.mov")
+        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("\(viewModel.exerciseId!).mov")
         let player = AVPlayer(url: fileUrl!)
         
         self.timeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
@@ -269,7 +270,9 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     @objc func handleStartButtonTapped() {
+        guard let viewModel = self.viewModel else { return }
         let exerciseCamViewController = ExerciseCamViewController()
+        exerciseCamViewController.viewModel = ExerciseCamViewModel(id: viewModel.exerciseId!)
         
         exerciseCamViewController.hero.isEnabled = true
         
@@ -278,8 +281,10 @@ class ExerciseReferenceViewController: UIViewController {
     }
     
     @objc func displayReference() {
+        guard let viewModel = self.viewModel else { return }
         let currentTime = Int(Date().toMilliSeconds - self.displayStartTime)
-        if let codablePose = self.viewModel.poseSequence.poses[currentTime] {
+        guard let poseSequence = viewModel.poseSequence else { return }
+        if let codablePose = poseSequence.poses[currentTime] {
             self.lastRecordedPoseTime = currentTime
             let recordedBody = Pose(from: codablePose)
             recordedBody.buildPoseAndDisplay(for: self.fakeCaptureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))

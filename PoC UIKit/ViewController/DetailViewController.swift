@@ -243,6 +243,7 @@ class DetailViewController: UIViewController {
         if viewModel.isAvailable {
             let exerciseReferenceViewController = ExerciseReferenceViewController()
             exerciseReferenceViewController.hero.isEnabled = true
+            exerciseReferenceViewController.viewModel = ExerciseReferenceViewModel(id: viewModel.exercise.id)
             self.navigationController?.hero.navigationAnimationType = .fade
             self.navigationController?.pushViewController(exerciseReferenceViewController, animated: true)
         } else {

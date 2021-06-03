@@ -9,12 +9,17 @@ import RxSwift
 import RxRelay
 
 class ExerciseCamViewModel {
-    var poseSequence: PoseSequence = PoseSequence(from: "test")
     var scores: [Int] = []
     var scoresPointerFrom: Int = 0
     var scoresPointerTo: Int = 0
     let currentScore = BehaviorRelay<Int?>(value: nil)
+    var exerciseId: Int?
+    var poseSequence: PoseSequence?
     
+    init(id: Int) {
+        self.exerciseId = id
+        self.poseSequence = PoseSequence(from: "\(id)")
+    }
     var currentAverageScoreWindowSize: Int {
         self.scoresPointerTo - self.scoresPointerFrom
     }
@@ -22,7 +27,6 @@ class ExerciseCamViewModel {
     var averageScore: Int {
         return Int(self.scores.reduce(0, +) / self.scores.count)
     }
-    
     
     func appendScore(similarity: Float) {
         var score: Int = 0

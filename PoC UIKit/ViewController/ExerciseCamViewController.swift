@@ -17,7 +17,7 @@ class ExerciseCamViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let viewModel: ExerciseCamViewModel = ExerciseCamViewModel()
+    var viewModel: ExerciseCamViewModel? = nil
     
     // Capture Session DataOutputQueue
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
@@ -64,8 +64,9 @@ class ExerciseCamViewController: UIViewController {
     }()
     
     lazy var referenceVideo: AVPlayer = {
+        guard let viewModel = self.viewModel else { return AVPlayer() }
         let documentsDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("test.mov")
+        let fileUrl = documentsDirectoryUrl?.appendingPathComponent("\(viewModel.exerciseId!).mov")
         let player = AVPlayer(url: fileUrl!)
         
         self.timeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.01, preferredTimescale: 600), queue: DispatchQueue.main) { CMTime in
@@ -292,7 +293,7 @@ class ExerciseCamViewController: UIViewController {
     }
     
     func bindUI() {
-        self.viewModel.currentScore
+        self.viewModel?.currentScore
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { score in
                 guard let score = score else { return }
@@ -386,18 +387,22 @@ class ExerciseCamViewController: UIViewController {
     }
     
     func displayScore(similarity: Float) {
-        self.viewModel.appendScore(similarity: similarity)
+        self.viewModel?.appendScore(similarity: similarity)
     }
     
     func displayInitialReferencePose() {
-        guard let codablePose = self.viewModel.poseSequence.poses[self.viewModel.poseSequence.initialPoseTime] else { return }
+        guard let viewModel = self.viewModel else { return }
+        guard let poseSequence = viewModel.poseSequence else { return }
+        
+        guard let codablePose = poseSequence.poses[poseSequence.initialPoseTime] else { return }
         let initialBody = Pose(from: codablePose)
         initialBody.buildPoseAndDisplay(for: self.captureLayer, on: self.overlayLayer, completion: self.displayReferencePose(points:edges:))
     }
     
     func evaluationFinished() {
+        guard let viewModel = self.viewModel else { return }
         let resultViewController = ResultViewController()
-        resultViewController.viewModel = ResultViewModel(score: self.viewModel.averageScore)
+        resultViewController.viewModel = ResultViewModel(score: viewModel.averageScore)
         self.navigationController?.pushViewController(resultViewController, animated: true)
     }
     
@@ -408,8 +413,10 @@ class ExerciseCamViewController: UIViewController {
     }
     
     @objc func displayReference() {
+        guard let viewModel = self.viewModel else { return }
+        guard let poseSequence = viewModel.poseSequence else { return }
         let currentTime = Int(Date().toMilliSeconds - self.evaluationStartTime)
-        if let codablePose = self.viewModel.poseSequence.poses[currentTime] {
+        if let codablePose = poseSequence.poses[currentTime] {
             self.lastRecordedPoseTime = currentTime
             let recordedBody = Pose(from: codablePose)
             self.recordedPoseVector = recordedBody.buildPoseVector()
