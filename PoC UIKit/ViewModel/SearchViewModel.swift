@@ -12,7 +12,7 @@ import Nuke
 
 class SearchViewModel {
     lazy var exerciseObservable = BehaviorRelay<[Exercise]>(value: [])
-    var recentKeyword: String?
+    var recentKeyword: String? = nil
     
     init() {
         self.searchExercises()
@@ -33,7 +33,6 @@ class SearchViewModel {
     }
     
     func refreshExercises() {
-        guard let keyword = recentKeyword else { return }
-        self.searchExercises(keyword: keyword)
+        self.searchExercises(keyword: recentKeyword)
     }
 }

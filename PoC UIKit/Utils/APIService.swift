@@ -57,6 +57,8 @@ class APIService {
             
             print(response.statusCode, terminator: " - ")
             switch response.statusCode {
+            case 400...499:
+                print("Client Error")
             case 500...599:
                 print("Internal Server Error")
             default:
