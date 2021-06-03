@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Nuke
+import JGProgressHUD
 
 class DetailViewController: UIViewController {
     
@@ -79,6 +80,16 @@ class DetailViewController: UIViewController {
         button.addTarget(self, action: #selector(self.handleCloseButtonTapped), for: .touchUpInside)
         return button
     }()
+    
+    lazy var downloadProgressHud: JGProgressHUD = {
+        let hud = JGProgressHUD(style: .dark)
+        hud.vibrancyEnabled = true
+        hud.indicatorView = JGProgressHUDPieIndicatorView()
+        return hud
+    }()
+    
+    lazy var downloadUrlSession = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+    var downloadTask: URLSessionDownloadTask? = nil
     
     // MARK: - Lifecycles
     
@@ -187,6 +198,39 @@ class DetailViewController: UIViewController {
         self.difficultyLabel.textColor = .white
     }
     
+    func showHud() {
+        self.downloadProgressHud.indicatorView = JGProgressHUDPieIndicatorView()
+        self.downloadProgressHud.show(in: self.view)
+    }
+    
+    func dismissHud() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+            UIView.animate(withDuration: 0.1, animations: {
+                self.downloadProgressHud.textLabel.text = "다운로드 완료!"
+                self.downloadProgressHud.detailTextLabel.text = nil
+                self.downloadProgressHud.indicatorView = JGProgressHUDSuccessIndicatorView()
+            })
+            self.downloadProgressHud.dismiss(afterDelay: 1.0)
+        }
+    }
+    
+    func startDownload(url: URL) {
+        let downloadTask = downloadUrlSession.downloadTask(with: url)
+        downloadTask.resume()
+        self.downloadTask = downloadTask
+    }
+    
+    func downloadSequentially() {
+        guard let viewModel = self.viewModel else { return }
+        if viewModel.downloadingFileNamesStack.isEmpty {
+            self.dismissHud()
+            return
+        }
+        self.downloadProgressHud.textLabel.text = viewModel.downloadingMessagesStack.first
+        self.showHud()
+        self.startDownload(url: URL(string: AWSS3Url + AWSS3BucketName + "/" + viewModel.downloadingFileNamesStack.first!)!)
+    }
+    
     // MARK: - IBActions
     
     @objc func handleCloseButtonTapped() {
@@ -194,11 +238,49 @@ class DetailViewController: UIViewController {
     }
     
     @objc func handleStartButtonTapped() {
-        let exerciseReferenceViewController = ExerciseReferenceViewController()
+        guard let viewModel = self.viewModel else { return }
         
-        exerciseReferenceViewController.hero.isEnabled = true
+        if viewModel.isAvailable {
+            let exerciseReferenceViewController = ExerciseReferenceViewController()
+            exerciseReferenceViewController.hero.isEnabled = true
+            self.navigationController?.hero.navigationAnimationType = .fade
+            self.navigationController?.pushViewController(exerciseReferenceViewController, animated: true)
+        } else {
+            self.downloadSequentially()
+        }
+    }
+}
+
+// MARK: - URLSessionDelegate
+
+extension DetailViewController: URLSessionDownloadDelegate {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        guard let viewModel = self.viewModel else { return }
+        guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let fileUrl = documentDirectoryUrl.appendingPathComponent(viewModel.downloadingFileNamesStack.first!)
+        viewModel.downloadingFileNamesStack.removeFirst()
+        viewModel.downloadingMessagesStack.removeFirst()
         
-        self.navigationController?.hero.navigationAnimationType = .fade
-        self.navigationController?.pushViewController(exerciseReferenceViewController, animated: true)
+        try? FileManager.default.moveItem(at: location, to: fileUrl)
+        print("file moved from \(location) to \(fileUrl)")
+        
+        DispatchQueue.main.sync {
+            if viewModel.downloadingFileNamesStack.isEmpty {
+                self.dismissHud()
+                return
+            } else {
+                self.downloadSequentially()
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        if downloadTask == self.downloadTask {
+            let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+            DispatchQueue.main.sync {
+                self.downloadProgressHud.progress = calculatedProgress
+                self.downloadProgressHud.detailTextLabel.text = String(format: "%.2f", (calculatedProgress * 100)) + "%"
+            }
+        }
     }
 }
