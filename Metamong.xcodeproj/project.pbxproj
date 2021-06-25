@@ -60,7 +60,7 @@
 		1D5573742657ED2800CBD418 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		1D5573762657EEC100CBD418 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		1D55737826589F1100CBD418 /* ExerciseReferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseReferenceViewController.swift; sourceTree = "<group>"; };
-		1D55737D265A68D200CBD418 /* PoC UIKit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PoC UIKit.entitlements"; sourceTree = "<group>"; };
+		1D55737D265A68D200CBD418 /* Metamong.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Metamong.entitlements; sourceTree = "<group>"; };
 		1D6828FB26611FB700E6E153 /* UploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewModel.swift; sourceTree = "<group>"; };
 		1D6D6E9726688088005ABA23 /* EmptyResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyResultView.swift; sourceTree = "<group>"; };
 		1D8109D8266223B400353825 /* RecordConfirmViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordConfirmViewController.swift; sourceTree = "<group>"; };
@@ -113,7 +113,7 @@
 		1D9542F62641321B00D955C6 = {
 			isa = PBXGroup;
 			children = (
-				1D9543012641321B00D955C6 /* PoC UIKit */,
+				1D9543012641321B00D955C6 /* Metamong */,
 				1D9543002641321B00D955C6 /* Products */,
 				796F0C37F14BC7C23A040C67 /* Pods */,
 				BDD031C86781AD86EB86758C /* Frameworks */,
@@ -128,10 +128,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1D9543012641321B00D955C6 /* PoC UIKit */ = {
+		1D9543012641321B00D955C6 /* Metamong */ = {
 			isa = PBXGroup;
 			children = (
-				1D55737D265A68D200CBD418 /* PoC UIKit.entitlements */,
+				1D55737D265A68D200CBD418 /* Metamong.entitlements */,
 				1DC59BCF265278ED00A10623 /* Model */,
 				1DD452F0265266350002B545 /* Utils */,
 				1DD93A5F264150F100FED9B5 /* View */,
@@ -141,7 +141,7 @@
 				1D9543102641321C00D955C6 /* Info.plist */,
 				1D95430B2641321C00D955C6 /* Assets.xcassets */,
 			);
-			path = "PoC UIKit";
+			path = Metamong;
 			sourceTree = "<group>";
 		};
 		1D95431C26413A7300D955C6 /* App */ = {
@@ -512,7 +512,7 @@
 				CODE_SIGN_ENTITLEMENTS = "PoC UIKit/PoC UIKit.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5HZQ3M82FA;
-				INFOPLIST_FILE = "PoC UIKit/Info.plist";
+				INFOPLIST_FILE = Metamong/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -534,7 +534,7 @@
 				CODE_SIGN_ENTITLEMENTS = "PoC UIKit/PoC UIKit.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5HZQ3M82FA;
-				INFOPLIST_FILE = "PoC UIKit/Info.plist";
+				INFOPLIST_FILE = Metamong/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
