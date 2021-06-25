@@ -509,7 +509,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "PoC UIKit/PoC UIKit.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Metamong/Metamong.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5HZQ3M82FA;
 				INFOPLIST_FILE = Metamong/Info.plist;
@@ -531,7 +531,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "PoC UIKit/PoC UIKit.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Metamong/Metamong.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5HZQ3M82FA;
 				INFOPLIST_FILE = Metamong/Info.plist;
