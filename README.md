@@ -14,6 +14,25 @@ COVID-19 팬데믹의 장기화로 인한 비대면 생활이 일상화됨에 �
 3. 다운로드 : 제작된 운동 컨텐츠를 서버로부터 내려받을 수 있습니다.
 4. 포즈추출 : 사용자가 컨텐츠의 영상을 따라 운동하면, 그 포즈를 추출하여 레퍼런스 포즈와의 유사도를 검사, 점수화 해 제공하여 피드백을 줍니다.
 
+## 사용 라이브러리
++ [Vision](https://developer.apple.com/documentation/vision/detecting_human_body_poses_in_images) : 애플 공식 컴퓨터비전 프레임워크
++ [SnapKit](https://github.com/SnapKit/SnapKit) : Auto Layout을 코드만으로 설정할 수 있도록 도와주는 라이브러리
++ [RxSwift](https://github.com/ReactiveX/RxSwift) : 비동기, 이벤트 기반 프로그래밍 라이브러리
++ [Nuke](https://github.com/kean/Nuke) : 이미지 캐시 라이브러리
++ [Hero](https://github.com/HeroTransitions/Hero) : 다양한 스타일의 View 전환 애니메이션을 제공하는 라이브러리
++ [JGProgressHUD](https://github.com/JonasGessner/JGProgressHUD) : 업로드/다운로드 진행상황을 보여주기 위해 사용한 라이브러리
++ [AWSS3](https://github.com/aws-amplify/aws-sdk-ios/tree/main/AWSS3) : AWS S3 인스턴스에 파일을 업로드하기위해 사용한 라이브러리
+
+## To-do list
+- [x] ~~Vision 프레임워크 사용, Pose 추출하기~~
+- [x] ~~시간별 Pose 정보를 JSON형태로 저장하기~~
+- [x] ~~Pose와 영상, 메타데이터를 서버에 업로드~~
+- [x] ~~Pose간 유사도 비교 알고리즘 구현(유클리드 거리 비교 기반)~~
+- [ ] 유사도 비교 성능 개선 (coreML 사용 등)
+- [ ] 프로필 기능 추가
+- [ ] 리더보드 기능 추가
+- [ ] App Store 출시해보기
+
 ## Poster
 > Metamong은 충남대학교 2021 CNU SW/AI ProjectFair 창의작품경진대회 출품작입니다.  
 
