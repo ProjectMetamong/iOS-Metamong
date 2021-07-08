@@ -23,7 +23,7 @@ class UploadViewController: UIViewController {
         imageView.backgroundColor = .systemGray3
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = cornerRadius
-        imageView.clipsToBounds = true
+        imageView.clipsToBounds = false
         imageView.isUserInteractionEnabled = true
         return imageView
     }()

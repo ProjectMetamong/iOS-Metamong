@@ -8,13 +8,13 @@
 import UIKit
 import AVFoundation
 
-protocol AVWriterDelegate {
+protocol AVWriterDelegate: AnyObject {
     func updateRecordingTime(ms: Int)
 }
 
 class AVWriter : NSObject {
     
-    var delegate: AVWriterDelegate?
+    weak var delegate: AVWriterDelegate?
     
     private var fileName: String
     private var assetWriter: AVAssetWriter!

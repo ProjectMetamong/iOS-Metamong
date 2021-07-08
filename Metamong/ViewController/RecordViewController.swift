@@ -10,7 +10,7 @@ import AVKit
 import SnapKit
 import Vision
 
-protocol RecordViewControllerDelegate {
+protocol RecordViewControllerDelegate: AnyObject {
     func didFisnishedRecording(length: Int)
 }
 
@@ -18,7 +18,7 @@ class RecordViewController: UIViewController {
     
     // MARK: - Properties
     
-    var delegate: RecordViewControllerDelegate?
+    weak var delegate: RecordViewControllerDelegate?
     private var viewModel: RecordViewModel = RecordViewModel()
     
     // Capture Session DataOutputQueues

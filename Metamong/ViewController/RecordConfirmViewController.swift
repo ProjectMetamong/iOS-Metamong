@@ -16,7 +16,7 @@ class RecordConfirmViewController: UIViewController {
 
     // MARK: - Properties
     
-    var delegateForRecordViewController: RecordViewControllerDelegate? = nil
+    weak var delegateForRecordViewController: RecordViewControllerDelegate? = nil
     private let viewModel: RecordConfirmViewModel = RecordConfirmViewModel()
     
     // User Pose Related
